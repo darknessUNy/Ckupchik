@@ -6,7 +6,7 @@
 <title>Скупщик</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { font-family: Arial, sans-serif; background: #1e1e1e; color: white; min-height: 100vh; padding-bottom: 80px; user-select: none; }
+body { font-family: Arial, sans-serif; background: #1e1e1e; color: white; min-height: 100vh; padding-bottom: 100px; user-select: none; }
 .topbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: #2b2b2b; position: sticky; top: 0; z-index: 50; }
 .btn-round { width: 44px; height: 44px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; font-size: 20px; color: #1e1e1e; }
 .balance { background: white; color: #1e1e1e; padding: 8px 15px; border-radius: 20px; font-weight: bold; display: flex; align-items: center; gap: 6px; }
@@ -19,6 +19,9 @@ body { font-family: Arial, sans-serif; background: #1e1e1e; color: white; min-he
 .bottombar { position: fixed; bottom: 0; left: 0; right: 0; background: #2b2b2b; display: flex; justify-content: space-around; align-items: center; padding: 10px 0; z-index: 50; }
 .bottom-btn { background: none; border: none; color: #888; font-size: 26px; cursor: pointer; padding: 5px 15px; }
 .bottom-btn.active { color: #00aaff; }
+.chest-btn { background: #ff8c1a; color: #666; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin-top: -25px; box-shadow: 0 4px 10px rgba(255,140,26,0.5); transition: transform 0.2s; padding: 0; }
+.chest-btn:hover { transform: scale(1.1); }
+.chest-btn:active { transform: scale(0.95); }
 .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
 .modal.open { display: flex; }
 .modal-content { background: #2b2b2b; border-radius: 20px; padding: 25px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
@@ -39,9 +42,9 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px;
 .slider-input { -webkit-appearance: none; width: 100%; height: 8px; background: transparent; position: absolute; top: 0; margin: 0; pointer-events: none; }
 .slider-input::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; background: white; border: 3px solid #ff1744; border-radius: 50%; cursor: pointer; pointer-events: auto; margin-top: -8px; }
 .price-caption { text-align: center; font-size: 18px; font-weight: bold; margin-top: 15px; }
-.price-caption .up { color: #ff1744; }
-.price-caption .down { color: #00c853; }
-.price-caption .normal { color: #00aaff; }
+.price-caption.down { color: #00c853; }
+.price-caption.up { color: #ff1744; }
+.price-caption.normal { color: #00aaff; }
 .big-btn { width: 100%; padding: 18px; background: #00aaff; color: white; border: none; border-radius: 15px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 20px; }
 .big-btn:hover { background: #0091ea; }
 body.light { background: #f0f0f0; color: #1e1e1e; }
@@ -73,8 +76,8 @@ body.light .theme-toggle { background: #e0e0e0; }
 
 <div class="bottombar">
     <button class="bottom-btn" onclick="openInventory()">💼</button>
+    <button class="bottom-btn chest-btn" onclick="openChest()">🎁</button>
     <button class="bottom-btn" onclick="alert('Чат в разработке')">💬</button>
-    <button class="bottom-btn" onclick="alert('Молния в разработке')">⚡</button>
 </div>
 
 <div class="modal" id="settingsModal">
@@ -132,9 +135,22 @@ const ITEMS = [
         image: 'https://cdn-icons-png.flaticon.com/512/1073/1073475.png',
         minPrice: 10,
         maxPrice: 250,
-        marketPrice: 100
+        marketPrice: 100,
+        chance: 100
     }
 ];
+
+const CHESTS = [
+    {
+        id: 'school',
+        name: 'Школьный сундук',
+        price: 100,
+        drops: [
+            { itemId: 'pencil', chance: 100 }
+        ]
+    }
+];
+
 let balance = 1000;
 let mySales = [];
 let currentItemIndex = 0;
@@ -156,7 +172,15 @@ function renderMySales() {
         el.className = 'empty';
     } else {
         el.className = '';
-        el.innerHTML = mySales.map((sale, i) => `<div style="background:#2b2b2b; border-radius:15px; padding:15px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;"><div><div style="font-weight:bold;">${sale.name}</div><div style="color:#00aaff; margin-top:5px;">${sale.price} ₽</div></div><button onclick="removeSale(${i})" style="background:#ff1744; color:white; border:none; padding:8px 12px; border-radius:10px; cursor:pointer;">Убрать</button></div>`).join('');
+        el.innerHTML = mySales.map((sale, i) => `
+            <div style="background:#2b2b2b; border-radius:15px; padding:15px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <div style="font-weight:bold;">${sale.name}</div>
+                    <div style="color:#00aaff; margin-top:5px;">${sale.price} ₽</div>
+                </div>
+                <button onclick="removeSale(${i})" style="background:#ff1744; color:white; border:none; padding:8px 12px; border-radius:10px; cursor:pointer;">Убрать</button>
+            </div>
+        `).join('');
     }
 }
 
@@ -168,7 +192,15 @@ function openInventory() { currentItemIndex = 0; renderInventory(); openModal('i
 
 function renderInventory() {
     const item = ITEMS[currentItemIndex];
-    document.getElementById('inventoryContent').innerHTML = `<div style="text-align:center; margin-bottom:20px;"><div style="font-size:80px; margin-bottom:10px;">${item.image}</div><div style="font-size:20px; font-weight:bold;">${item.name}</div><div style="color:#888; margin-top:5px;">Рыночная цена: ${item.marketPrice} ₽</div></div><button class="big-btn" onclick="openSell()">Выставить на продажу</button><button class="big-btn" style="background:#00c853; margin-top:10px;" onclick="instantSell()">Продать за ${item.marketPrice} ₽</button>`;
+    document.getElementById('inventoryContent').innerHTML = `
+        <div style="text-align:center; margin-bottom:20px;">
+            <img src="${item.image}" alt="${item.name}" style="width:150px; height:150px; object-fit:contain; margin-bottom:10px;">
+            <div style="font-size:20px; font-weight:bold;">${item.name}</div>
+            <div style="color:#888; margin-top:5px;">Рыночная цена: ${item.marketPrice} ₽</div>
+        </div>
+        <button class="big-btn" onclick="openSell()">Выставить на продажу</button>
+        <button class="big-btn" style="background:#00c853; margin-top:10px;" onclick="instantSell()">Продать за ${item.marketPrice} ₽</button>
+    `;
 }
 
 function openSell() {
@@ -223,6 +255,35 @@ function instantSell() {
     updateBalance();
     closeModal('inventoryModal');
     alert('Продано за ' + item.marketPrice + ' ₽');
+}
+
+function openChest() {
+    const chest = CHESTS[0];
+    if (balance < chest.price) {
+        alert('Недостаточно средств! Нужно ' + chest.price + ' ₽');
+        return;
+    }
+    if (!confirm('Открыть ' + chest.name + ' за ' + chest.price + ' ₽?')) return;
+
+    balance -= chest.price;
+    updateBalance();
+
+    const roll = Math.random() * 100;
+    let acc = 0;
+    let dropped = null;
+    for (const drop of chest.drops) {
+        acc += drop.chance;
+        if (roll < acc) {
+            dropped = ITEMS.find(i => i.id === drop.itemId);
+            break;
+        }
+    }
+
+    if (dropped) {
+        alert('🎉 Выпал предмет: ' + dropped.name + '!');
+    } else {
+        alert('Пусто...');
+    }
 }
 
 function setTheme(theme) {
