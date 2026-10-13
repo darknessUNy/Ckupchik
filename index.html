@@ -11,21 +11,19 @@ body { font-family: Arial, sans-serif; background: #1e1e1e; color: white; min-he
 .btn-round { width: 44px; height: 44px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; font-size: 20px; color: #1e1e1e; }
 .balance { background: white; color: #1e1e1e; padding: 8px 15px; border-radius: 20px; font-weight: bold; display: flex; align-items: center; gap: 6px; }
 .balance-plus { color: #00c853; font-size: 22px; font-weight: bold; }
-.tabs { display: flex; gap: 10px; padding: 15px; }
-.tab { padding: 12px 20px; border-radius: 25px; background: #2b2b2b; color: #888; font-weight: bold; cursor: pointer; border: none; font-size: 14px; transition: background 0.2s; }
-.tab.active { background: #ff8c1a; color: white; }
-.content { padding: 0 15px; }
-.empty { color: #666; padding: 40px 0; font-size: 16px; }
-.bottombar { position: fixed; bottom: 0; left: 0; right: 0; background: #2b2b2b; display: flex; justify-content: space-around; align-items: center; padding: 10px 0; z-index: 50; }
-.bottom-btn { background: none; border: none; color: #888; font-size: 26px; cursor: pointer; padding: 5px 15px; }
+.content { padding: 15px; }
+.empty { color: #666; padding: 40px 0; font-size: 16px; text-align: center; }
+
+.bottombar { position: fixed; bottom: 0; left: 0; right: 0; background: #2b2b2b; display: flex; justify-content: space-around; align-items: center; padding: 10px 0 15px; z-index: 50; }
+.bottom-btn { background: none; border: none; color: #888; font-size: 24px; cursor: pointer; padding: 5px 10px; }
 .bottom-btn.active { color: #00aaff; }
-.chest-btn { background: #ff8c1a; color: #666; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin-top: -25px; box-shadow: 0 4px 10px rgba(255,140,26,0.5); transition: transform 0.2s; padding: 0; }
-.chest-btn:hover { transform: scale(1.1); }
-.chest-btn:active { transform: scale(0.95); }
-.modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
+.bottom-btn.main { background: white; color: #1e1e1e; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: -20px; font-size: 24px; }
+
+.modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 100; justify-content: center; align-items: center; padding: 15px; }
 .modal.open { display: flex; }
-.modal-content { background: #2b2b2b; border-radius: 20px; padding: 25px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
-.modal-title { font-size: 22px; font-weight: bold; margin-bottom: 20px; text-align: center; }
+.modal-content { background: #2b2b2b; border-radius: 20px; padding: 20px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
+.modal-title { font-size: 20px; font-weight: bold; margin-bottom: 18px; text-align: center; }
+
 .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #3a3a3a; }
 .setting-label { font-size: 16px; }
 .theme-toggle { display: flex; background: #1e1e1e; border-radius: 20px; padding: 3px; }
@@ -33,87 +31,30 @@ body { font-family: Arial, sans-serif; background: #1e1e1e; color: white; min-he
 .theme-btn.active { background: #00aaff; color: white; }
 input[type=range] { -webkit-appearance: none; width: 140px; height: 6px; background: #1e1e1e; border-radius: 3px; outline: none; }
 input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; background: #00aaff; border-radius: 50%; cursor: pointer; }
-.price-display { background: white; color: #1e1e1e; font-size: 28px; font-weight: bold; text-align: center; padding: 18px; border-radius: 50px; margin: 15px 0; }
-.slider-wrap { position: relative; margin: 25px 0; }
-.slider-labels { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 8px; }
-.slider-labels .green { color: #00c853; }
-.slider-labels .red { color: #ff1744; }
-.slider-track { position: relative; height: 8px; border-radius: 4px; background: linear-gradient(to right, #00c853 0%, #00c853 20%, #00aaff 30%, #00aaff 70%, #ff1744 80%, #ff1744 100%); }
-.slider-input { -webkit-appearance: none; width: 100%; height: 8px; background: transparent; position: absolute; top: 0; margin: 0; pointer-events: none; }
-.slider-input::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; background: white; border: 3px solid #ff1744; border-radius: 50%; cursor: pointer; pointer-events: auto; margin-top: -8px; }
-.price-caption { text-align: center; font-size: 18px; font-weight: bold; margin-top: 15px; }
-.price-caption.down { color: #00c853; }
-.price-caption.up { color: #ff1744; }
-.price-caption.normal { color: #00aaff; }
-.big-btn { width: 100%; padding: 18px; background: #00aaff; color: white; border: none; border-radius: 15px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 20px; }
-.big-btn:hover { background: #0091ea; }
 
-.inv-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-.inv-tab { flex: 1; padding: 14px; border-radius: 25px; background: #2b2b2b; color: #888; font-weight: bold; cursor: pointer; border: none; font-size: 14px; }
-.inv-tab.active { background: #00aaff; color: white; }
+.big-btn { width: 100%; padding: 16px; background: #00aaff; color: white; border: none; border-radius: 15px; font-size: 17px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+
+.tabs { display: flex; gap: 10px; margin-bottom: 15px; }
+.tab { flex: 1; padding: 12px; border-radius: 25px; background: #2b2b2b; color: #888; font-weight: bold; cursor: pointer; border: none; font-size: 14px; }
+.tab.active { background: #00aaff; color: white; }
+
+.market-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.market-card { background: white; border-radius: 18px; padding: 12px; text-align: center; box-shadow: 0 0 12px rgba(255,140,26,0.6); border: 2px solid #ff8c1a; }
+.market-card img { width: 100%; height: 110px; object-fit: contain; margin-bottom: 8px; }
+.market-card .name { color: #1e1e1e; font-weight: bold; font-size: 15px; margin-bottom: 8px; }
+.market-card .price { color: #1e1e1e; font-weight: bold; font-size: 18px; }
 
 .inv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.inv-card {
-    background: white;
-    border-radius: 18px;
-    padding: 12px;
-    position: relative;
-    box-shadow: 0 0 12px rgba(255,140,26,0.6);
-    border: 2px solid #ff8c1a;
-}
-.inv-card .badge {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    background: #00c853;
-    color: white;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 11px;
-    font-weight: bold;
-    z-index: 2;
-}
-.inv-card img {
-    width: 100%;
-    height: 100px;
-    object-fit: contain;
-    margin-bottom: 8px;
-}
-.inv-card .inv-name {
-    color: #1e1e1e;
-    font-weight: bold;
-    font-size: 16px;
-    margin-bottom: 10px;
-}
-.inv-card .btn-sell {
-    width: 100%;
-    background: #00aaff;
-    color: white;
-    border: none;
-    padding: 10px;
-    border-radius: 12px;
-    font-weight: bold;
-    font-size: 13px;
-    cursor: pointer;
-    margin-bottom: 6px;
-}
-.inv-card .btn-fast {
-    width: 100%;
-    background: #ff1744;
-    color: white;
-    border: none;
-    padding: 10px;
-    border-radius: 12px;
-    font-weight: bold;
-    font-size: 13px;
-    cursor: pointer;
-}
-.empty-inv { color: #666; padding: 40px 0; text-align: center; grid-column: 1 / -1; }
+.inv-card { background: white; border-radius: 18px; padding: 12px; position: relative; box-shadow: 0 0 12px rgba(255,140,26,0.6); border: 2px solid #ff8c1a; }
+.inv-card .badge { position: absolute; top: -8px; right: -8px; background: #00c853; color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; z-index: 2; }
+.inv-card img { width: 100%; height: 100px; object-fit: contain; margin-bottom: 8px; }
+.inv-card .inv-name { color: #1e1e1e; font-weight: bold; font-size: 16px; margin-bottom: 10px; }
+.inv-card .btn-sell { width: 100%; background: #00aaff; color: white; border: none; padding: 10px; border-radius: 12px; font-weight: bold; font-size: 13px; cursor: pointer; margin-bottom: 6px; }
+.inv-card .btn-fast { width: 100%; background: #ff1744; color: white; border: none; padding: 10px; border-radius: 12px; font-weight: bold; font-size: 13px; cursor: pointer; }
 
 .collection-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 0 15px; }
-.collection-header h2 { font-size: 22px; font-weight: bold; }
-.collection-header .progress { color: #ff8c1a; font-size: 22px; font-weight: bold; }
-
+.collection-header h2 { font-size: 20px; font-weight: bold; }
+.collection-header .progress { color: #ff8c1a; font-size: 20px; font-weight: bold; }
 .collection-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .collection-card { background: #3a3a3a; border-radius: 15px; overflow: hidden; position: relative; cursor: pointer; }
 .collection-card .rarity { position: absolute; top: 10px; left: 10px; background: #888; color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; z-index: 2; }
@@ -126,6 +67,18 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px;
 .collection-card.collected .not-collected { display: none; }
 .collection-card.collected .rarity { background: #00aaff; }
 
+.sell-price { background: white; color: #1e1e1e; font-size: 26px; font-weight: bold; text-align: center; padding: 16px; border-radius: 50px; margin: 15px 0; }
+.slider-wrap { margin: 20px 0; }
+.slider-labels { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 8px; }
+.slider-labels .green { color: #00c853; }
+.slider-labels .red { color: #ff1744; }
+.slider-input { -webkit-appearance: none; width: 100%; height: 8px; border-radius: 4px; background: linear-gradient(to right, #00c853 0%, #00c853 20%, #00aaff 30%, #00aaff 70%, #ff1744 80%, #ff1744 100%); outline: none; }
+.slider-input::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; background: white; border: 3px solid #ff1744; border-radius: 50%; cursor: pointer; }
+.price-caption { text-align: center; font-size: 16px; font-weight: bold; margin-top: 10px; }
+.price-caption.down { color: #00c853; }
+.price-caption.up { color: #ff1744; }
+.price-caption.normal { color: #00aaff; }
+
 body.light { background: #f0f0f0; color: #1e1e1e; }
 body.light .topbar, body.light .bottombar { background: #ffffff; }
 body.light .btn-round { background: #1e1e1e; color: white; }
@@ -134,7 +87,6 @@ body.light .tab { background: #e0e0e0; color: #666; }
 body.light .modal-content { background: #ffffff; color: #1e1e1e; }
 body.light .setting-row { border-bottom-color: #e0e0e0; }
 body.light .theme-toggle { background: #e0e0e0; }
-body.light .inv-tab { background: #e0e0e0; color: #666; }
 </style>
 </head>
 <body>
@@ -144,20 +96,18 @@ body.light .inv-tab { background: #e0e0e0; color: #666; }
     <div class="balance"><span class="balance-plus">+</span> <span id="balanceValue">0</span> ₽</div>
 </div>
 
-<div class="tabs">
-    <button class="tab active" onclick="switchTab('market', this)">МАРКЕТ</button>
-    <button class="tab" onclick="switchTab('my-sales', this)">МОИ ПРОДАЖИ</button>
-</div>
-
 <div class="content">
-    <div id="marketContent" class="empty">Тут будут предметы из маркета.</div>
-    <div id="mySalesContent" class="empty" style="display:none;">У вас пока нет продаж.</div>
+    <div id="mainContent"></div>
 </div>
 
 <div class="bottombar">
-    <button class="bottom-btn" onclick="openInventory()">💼</button>
-    <button class="bottom-btn chest-btn" onclick="openChest()">🎁</button>
-    <button class="bottom-btn" onclick="openIndex()">⚡</button>
+    <button class="bottom-btn" id="btnMarket" onclick="switchPage('market')">🛒</button>
+    <button class="bottom-btn" id="btnChest" onclick="openChest()">🎁</button>
+    <button class="bottom-btn" id="btnHammer" onclick="switchPage('sales')">🔨</button>
+    <button class="bottom-btn main" id="btnInv" onclick="openInventory()">💼</button>
+    <button class="bottom-btn" id="btnChat" onclick="alert('Чат в разработке')">💬</button>
+    <button class="bottom-btn" id="btnShop" onclick="alert('Магазин в разработке')">🏪</button>
+    <button class="bottom-btn" id="btnIndex" onclick="openIndex()">⚡</button>
 </div>
 
 <div class="modal" id="settingsModal">
@@ -184,9 +134,9 @@ body.light .inv-tab { background: #e0e0e0; color: #666; }
 
 <div class="modal" id="inventoryModal">
     <div class="modal-content">
-        <div class="inv-tabs">
-            <button class="inv-tab active" id="tabInv" onclick="switchInvTab('inv')">ИНВЕНТАРЬ</button>
-            <button class="inv-tab" id="tabCol" onclick="switchInvTab('col')">КОЛЛЕКЦИЯ</button>
+        <div class="tabs">
+            <button class="tab active" id="tabInv" onclick="switchInvTab('inv')">ИНВЕНТАРЬ</button>
+            <button class="tab" id="tabCol" onclick="switchInvTab('col')">КОЛЛЕКЦИЯ</button>
         </div>
         <div id="invView"></div>
         <div id="colView" style="display:none;">
@@ -203,13 +153,12 @@ body.light .inv-tab { background: #e0e0e0; color: #666; }
 <div class="modal" id="sellModal">
     <div class="modal-content">
         <div class="modal-title" id="sellCaption">Твоя цена рыночная</div>
-        <div class="price-display" id="sellPrice">0 ₽</div>
+        <div class="sell-price" id="sellPrice">0 ₽</div>
         <div class="slider-wrap">
             <div class="slider-labels">
                 <span class="green" id="minPriceLabel">50 ₽</span>
                 <span class="red" id="maxPriceLabel">125 ₽</span>
             </div>
-            <div class="slider-track"></div>
             <input type="range" class="slider-input" id="priceSlider" min="50" max="125" value="87">
         </div>
         <div class="price-caption" id="priceCaption">Твоя цена рыночная</div>
@@ -219,64 +168,117 @@ body.light .inv-tab { background: #e0e0e0; color: #666; }
 
 <script>
 const ITEMS = [
-    {
-        id: 'pencil',
-        name: 'Карандаш',
-        image: 'https://cdn-icons-png.flaticon.com/512/1073/1073475.png',
-        minPrice: 10,
-        maxPrice: 250,
-        marketPrice: 100,
-        reward: 250,
-        rarity: 'Обычный'
-    }
+    { id: 'pencil', name: 'Карандаш', image: 'https://cdn-icons-png.flaticon.com/512/1073/1073475.png', minPrice: 10, maxPrice: 250, marketPrice: 100, reward: 250, rarity: 'Обычный' }
 ];
 
 const CHESTS = [
-    {
-        id: 'school',
-        name: 'Школьный сундук',
-        price: 100,
-        drops: [{ itemId: 'pencil', chance: 100 }]
-    }
+    { id: 'school', name: 'Школьный сундук', price: 100, drops: [{ itemId: 'pencil', chance: 100 }] }
 ];
 
-let balance = 1000;
-let inventory = [];
-let mySales = [];
-let collectedIndex = [];
+let state = {
+    balance: 1000,
+    inventory: [],
+    mySales: [],
+    collected: [],
+    marketItems: [],
+    marketResetTime: 0,
+    theme: 'dark',
+    sfxVolume: 70,
+    musicVolume: 50
+};
 
-function updateBalance() { document.getElementById('balanceValue').textContent = balance; }
+function save() { localStorage.setItem('skupchik_save', JSON.stringify(state)); }
 
-function switchTab(tab, btn) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('marketContent').style.display = tab === 'market' ? 'block' : 'none';
-    document.getElementById('mySalesContent').style.display = tab === 'my-sales' ? 'block' : 'none';
-    if (tab === 'my-sales') renderMySales();
+function load() {
+    const raw = localStorage.getItem('skupchik_save');
+    if (raw) { try { state = { ...state, ...JSON.parse(raw) }; } catch(e) {} }
+    updateBalance();
+    if (state.theme === 'light') setTheme('light');
+    document.getElementById('sfxVolume').value = state.sfxVolume;
+    document.getElementById('musicVolume').value = state.musicVolume;
 }
 
-function renderMySales() {
-    const el = document.getElementById('mySalesContent');
-    if (mySales.length === 0) {
-        el.innerHTML = 'У вас пока нет продаж.';
-        el.className = 'empty';
+function updateBalance() { document.getElementById('balanceValue').textContent = state.balance; }
+
+function setTheme(theme) {
+    state.theme = theme;
+    const body = document.body;
+    document.getElementById('themeLight').classList.remove('active');
+    document.getElementById('themeDark').classList.remove('active');
+    if (theme === 'light') {
+        body.classList.add('light');
+        document.getElementById('themeLight').classList.add('active');
     } else {
-        el.className = '';
-        el.innerHTML = mySales.map((sale, i) => `
-            <div style="background:#2b2b2b; border-radius:15px; padding:15px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <div style="font-weight:bold;">${sale.name}</div>
-                    <div style="color:#00aaff; margin-top:5px;">${sale.price} ₽</div>
-                </div>
-                <button onclick="removeSale(${i})" style="background:#ff1744; color:white; border:none; padding:8px 12px; border-radius:10px; cursor:pointer;">Убрать</button>
-            </div>
-        `).join('');
+        body.classList.remove('light');
+        document.getElementById('themeDark').classList.add('active');
+    }
+    save();
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+let currentPage = 'market';
+function switchPage(page) {
+    currentPage = page;
+    document.querySelectorAll('.bottom-btn').forEach(b => b.classList.remove('active'));
+    if (page === 'market') {
+        document.getElementById('btnMarket').classList.add('active');
+        renderMarket();
+    } else if (page === 'sales') {
+        document.getElementById('btnHammer').classList.add('active');
+        renderSales();
     }
 }
 
-function removeSale(index) { mySales.splice(index, 1); renderMySales(); }
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function renderMarket() {
+    const el = document.getElementById('mainContent');
+    const now = Date.now();
+    if (now > state.marketResetTime || state.marketItems.length === 0) {
+        generateMarket();
+    }
+    if (state.marketItems.length === 0) {
+        el.innerHTML = '<div class="empty">Товары скоро появятся...</div>';
+        return;
+    }
+    el.innerHTML = `<div class="market-grid">${state.marketItems.map(item => `
+        <div class="market-card">
+            <img src="${item.image}" alt="${item.name}">
+            <div class="name">${item.name}</div>
+            <div class="price">${item.marketPrice} ₽</div>
+        </div>
+    `).join('')}</div>`;
+}
+
+function generateMarket() {
+    state.marketItems = ITEMS.map(item => {
+        const min = item.minPrice;
+        const max = item.maxPrice;
+        const price = Math.floor(Math.random() * (max - min + 1)) + min;
+        return { ...item, marketPrice: price };
+    });
+    state.marketResetTime = Date.now() + 15 * 60 * 1000;
+    save();
+}
+
+function renderSales() {
+    const el = document.getElementById('mainContent');
+    if (state.mySales.length === 0) {
+        el.innerHTML = '<div class="empty">У вас пока нет продаж.</div>';
+        return;
+    }
+    el.innerHTML = state.mySales.map((sale, i) => `
+        <div style="background:#2b2b2b; border-radius:15px; padding:15px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <div style="font-weight:bold;">${sale.name}</div>
+                <div style="color:#00aaff; margin-top:5px;">${sale.price} ₽</div>
+            </div>
+            <button onclick="removeSale(${i})" style="background:#ff1744; color:white; border:none; padding:8px 12px; border-radius:10px; cursor:pointer;">Убрать</button>
+        </div>
+    `).join('');
+}
+
+function removeSale(index) { state.mySales.splice(index, 1); save(); renderSales(); }
 
 function openInventory() {
     switchInvTab('inv');
@@ -301,12 +303,12 @@ function switchInvTab(tab) {
 
 function renderInventory() {
     const view = document.getElementById('invView');
-    if (inventory.length === 0) {
-        view.innerHTML = '<div class="empty-inv">Инвентарь пуст. Открой сундук!</div>';
+    if (state.inventory.length === 0) {
+        view.innerHTML = '<div class="empty" style="grid-column:1/-1;">Инвентарь пуст. Открой сундук!</div>';
         return;
     }
     view.className = 'inv-grid';
-    view.innerHTML = inventory.map((item, i) => `
+    view.innerHTML = state.inventory.map((item, i) => `
         <div class="inv-card">
             <div class="badge">НОВЫЙ</div>
             <img src="${item.image}" alt="${item.name}">
@@ -318,7 +320,7 @@ function renderInventory() {
 }
 
 function openSell(index) {
-    const item = inventory[index];
+    const item = state.inventory[index];
     const slider = document.getElementById('priceSlider');
     slider.min = item.minPrice;
     slider.max = item.maxPrice;
@@ -332,18 +334,19 @@ function openSell(index) {
 }
 
 function fastSell(index) {
-    const item = inventory[index];
+    const item = state.inventory[index];
     const price = Math.round((item.minPrice + item.maxPrice) / 2);
-    balance += price;
-    inventory.splice(index, 1);
+    state.balance += price;
+    state.inventory.splice(index, 1);
     updateBalance();
+    save();
     renderInventory();
     alert('Быстрая продажа: +' + price + ' ₽');
 }
 
 function updatePriceCaption() {
     const slider = document.getElementById('priceSlider');
-    const item = inventory[slider.dataset.index];
+    const item = state.inventory[slider.dataset.index];
     if (!item) return;
     const val = parseInt(slider.value);
     const caption = document.getElementById('sellCaption');
@@ -371,23 +374,24 @@ document.getElementById('priceSlider').addEventListener('input', updatePriceCapt
 function confirmSell() {
     const slider = document.getElementById('priceSlider');
     const index = parseInt(slider.dataset.index);
-    const item = inventory[index];
+    const item = state.inventory[index];
     const price = parseInt(slider.value);
-    mySales.push({ name: item.name, price: price });
-    inventory.splice(index, 1);
+    state.mySales.push({ name: item.name, price: price });
+    state.inventory.splice(index, 1);
+    save();
     closeModal('sellModal');
     alert('Товар выставлен на продажу за ' + price + ' ₽');
 }
 
 function openChest() {
     const chest = CHESTS[0];
-    if (balance < chest.price) {
+    if (state.balance < chest.price) {
         alert('Недостаточно средств! Нужно ' + chest.price + ' ₽');
         return;
     }
     if (!confirm('Открыть ' + chest.name + ' за ' + chest.price + ' ₽?')) return;
 
-    balance -= chest.price;
+    state.balance -= chest.price;
     updateBalance();
 
     const roll = Math.random() * 100;
@@ -402,7 +406,8 @@ function openChest() {
     }
 
     if (dropped) {
-        inventory.push({ ...dropped });
+        state.inventory.push({ ...dropped });
+        save();
         alert('🎉 Выпал предмет: ' + dropped.name + '!');
     } else {
         alert('Пусто...');
@@ -417,47 +422,4 @@ function openIndex() {
 }
 
 function renderCollection() {
-    const grid = document.getElementById('collectionGrid');
-    const collectedCount = ITEMS.filter(i => collectedIndex.includes(i.id)).length;
-    document.getElementById('collectionProgress').textContent = collectedCount + '/' + ITEMS.length;
-
-    grid.innerHTML = ITEMS.map(item => {
-        const collected = collectedIndex.includes(item.id);
-        return `
-            <div class="collection-card ${collected ? 'collected' : ''}" onclick="tryClaim('${item.id}')">
-                <div class="rarity">${item.rarity}</div>
-                <div class="img-wrap">
-                    <img src="${item.image}" alt="${item.name}">
-                    ${!collected ? '<div class="not-collected">НЕ СОБРАН</div>' : ''}
-                </div>
-                <div class="bottom">${item.name}</div>
-            </div>
-        `;
-    }).join('');
-}
-
-function tryClaim(itemId) {
-    const item = ITEMS.find(i => i.id === itemId);
-    if (!item) return;
-    if (collectedIndex.includes(itemId)) {
-        alert('Вы уже получили награду за ' + item.name);
-        return;
-    }
-    if (!inventory.some(i => i.id === itemId)) {
-        alert('Сначала получите ' + item.name + ' из сундука');
-        return;
-    }
-    collectedIndex.push(itemId);
-    balance += item.reward;
-    updateBalance();
-    renderCollection();
-    alert('Вам начислено ' + item.reward + ' ₽!');
-}
-
-function setTheme(theme) {
-    const body = document.body;
-    document.getElementById('themeLight').classList.remove('active');
-    document.getElementById('themeDark').classList.remove('active');
-    if (theme === 'light') {
-        body.classList.add('light');
-        document.getElementById
+    const grid = do
