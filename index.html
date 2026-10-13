@@ -240,345 +240,387 @@
   </div>
 
   <script>
-    const authScreen = document.getElementById('auth-screen');
-    const gameHeader = document.getElementById('game-header');
-    const gameLayout = document.querySelector('.game-layout');
-    const loginInput = document.getElementById('login-input');
-    const passwordInput = document.getElementById('password-input');
-    const btnLogin = document.getElementById('btn-login');
-    const btnRegister = document.getElementById('btn-register');
-    const authMsg = document.getElementById('auth-msg');
-    const currentUserDisplay = document.getElementById('current-user-display');
-    const balanceVal = document.getElementById('balance-val');
-    const marketList = document.getElementById('market-list');
-    const selectedItemName = document.getElementById('selected-item-name');
-    const currentMarketPrice = document.getElementById('current-market-price');
-    const statusMsg = document.getElementById('status-msg');
+  const authScreen = document.getElementById('auth-screen');
+  const gameHeader = document.getElementById('game-header');
+  const gameLayout = document.querySelector('.game-layout');
+  const loginInput = document.getElementById('login-input');
+  const passwordInput = document.getElementById('password-input');
+  const btnLogin = document.getElementById('btn-login');
+  const btnRegister = document.getElementById('btn-register');
+  const authMsg = document.getElementById('auth-msg');
+  const currentUserDisplay = document.getElementById('current-user-display');
+  const balanceVal = document.getElementById('balance-val');
+  const marketList = document.getElementById('market-list');
+  const selectedItemName = document.getElementById('selected-item-name');
+  const currentMarketPrice = document.getElementById('current-market-price');
+  const statusMsg = document.getElementById('status-msg');
 
-    const adminPanel = document.getElementById('admin-panel');
-    const btnAdminToggle = document.getElementById('btn-admin-toggle');
-    const adminTargetNick = document.getElementById('admin-target-nick');
-    const adminAmount = document.getElementById('admin-amount');
-    const adminSend = document.getElementById('admin-send');
-    const adminStatus = document.getElementById('admin-status');
+  const adminPanel = document.getElementById('admin-panel');
+  const btnAdminToggle = document.getElementById('btn-admin-toggle');
+  const adminTargetNick = document.getElementById('admin-target-nick');
+  const adminAmount = document.getElementById('admin-amount');
+  const adminSend = document.getElementById('admin-send');
+  const adminStatus = document.getElementById('admin-status');
 
-    let currentUser = null;
-    let isLoggedIn = false;
-    let balance = 1000;
-    let itemsData = [];
-    let selectedItemId = null;
-    let customOfferPrice = null;
+  let currentUser = null;
+  let isLoggedIn = false;
+  let balance = 1000;
+  let itemsData = [];
+  let selectedItemId = null;
+  let customOfferPrice = null;
 
-    const defaultItems = [
-      { id: 'gum', name: 'Жвачка', baseBuy: 25, baseSell: 35, stock: 500, owned: 0, volatility: 0.05 },
-            { id: 'coffee', name: 'Стакан кофе', baseBuy: 180, baseSell: 260, stock: 200, owned: 0, volatility: 0.08 },
-      { id: 'phone_old', name: 'Старый смартфон', baseBuy: 4500, baseSell: 5800, stock: 80, owned: 0, volatility: 0.12 },
-      { id: 'laptop_used', name: 'Б/у ноутбук', baseBuy: 22000, baseSell: 29000, stock: 30, owned: 0, volatility: 0.10 },
-      { id: 'headphones', name: 'Беспроводные наушники', baseBuy: 3200, baseSell: 4300, stock: 120, owned: 0, volatility: 0.11 },
-      { id: 'watch_casual', name: 'Наручные часы (простые)', baseBuy: 1500, baseSell: 2300, stock: 90, owned: 0, volatility: 0.13 },
-      { id: 'tablet_mid', name: 'Планшет средней модели', baseBuy: 11000, baseSell: 14500, stock: 40, owned: 0, volatility: 0.09 },
-      { id: 'powerbank', name: 'Powerbank 20000 mAh', baseBuy: 1300, baseSell: 1900, stock: 150, owned: 0, volatility: 0.07 },
-      { id: 'keyboard_mech', name: 'Механическая клавиатура', baseBuy: 4800, baseSell: 6500, stock: 60, owned: 0, volatility: 0.10 },
-      { id: 'mouse_gaming', name: 'Игровая мышь', baseBuy: 2100, baseSell: 3100, stock: 100, owned: 0, volatility: 0.12 },
-      { id: 'backpack_urban', name: 'Городской рюкзак', baseBuy: 2700, baseSell: 3800, stock: 70, owned: 0, volatility: 0.08 },
-      { id: 'sunglasses', name: 'Солнцезащитные очки', baseBuy: 900, baseSell: 1400, stock: 180, owned: 0, volatility: 0.14 },
-      { id: 'tshirt_brand', name: 'Футболка брендовая', baseBuy: 1600, baseSell: 2400, stock: 250, owned: 0, volatility: 0.06 },
-      { id: 'jeans_premium', name: 'Джинсы премиум', baseBuy: 4200, baseSell: 5900, stock: 50, owned: 0, volatility: 0.09 },
-      { id: 'camera_compact', name: 'Компактная камера', baseBuy: 8500, baseSell: 11500, stock: 35, owned: 0, volatility: 0.11 },
-      { id: 'drone_mini', name: 'Мини‑дрон', baseBuy: 7200, baseSell: 9800, stock: 45, owned: 0, volatility: 0.13 }
-    ];
+  const defaultItems = [
+    { id: 'gum', name: 'Жвачка', baseBuy: 25, baseSell: 35, stock: 500, owned: 0, volatility: 0.05 },
+    { id: 'coffee', name: 'Стакан кофе', baseBuy: 180, baseSell: 260, stock: 200, owned: 0, volatility: 0.08 },
+    { id: 'phone_old', name: 'Старый смартфон', baseBuy: 4500, baseSell: 5800, stock: 80, owned: 0, volatility: 0.12 },
+    { id: 'laptop_used', name: 'Б/у ноутбук', baseBuy: 22000, baseSell: 29000, stock: 30, owned: 0, volatility: 0.10 },
+    { id: 'headphones', name: 'Беспроводные наушники', baseBuy: 3200, baseSell: 4300, stock: 120, owned: 0, volatility: 0.11 },
+    { id: 'watch_casual', name: 'Наручные часы (простые)', baseBuy: 1500, baseSell: 2300, stock: 90, owned: 0, volatility: 0.13 },
+    { id: 'tablet_mid', name: 'Планшет средней модели', baseBuy: 11000, baseSell: 14500, stock: 40, owned: 0, volatility: 0.09 },
+    { id: 'powerbank', name: 'Powerbank 20000 mAh', baseBuy: 1300, baseSell: 1900, stock: 150, owned: 0, volatility: 0.07 },
+    { id: 'keyboard_mech', name: 'Механическая клавиатура', baseBuy: 4800, baseSell: 6500, stock: 60, owned: 0, volatility: 0.10 },
+    { id: 'mouse_gaming', name: 'Игровая мышь', baseBuy: 2100, baseSell: 3100, stock: 100, owned: 0, volatility: 0.12 },
+    { id: 'backpack_urban', name: 'Городской рюкзак', baseBuy: 2700, baseSell: 3800, stock: 70, owned: 0, volatility: 0.08 },
+    { id: 'sunglasses', name: 'Солнцезащитные очки', baseBuy: 900, baseSell: 1400, stock: 180, owned: 0, volatility: 0.14 },
+    { id: 'tshirt_brand', name: 'Футболка брендовая', baseBuy: 1600, baseSell: 2400, stock: 250, owned: 0, volatility: 0.06 },
+    { id: 'jeans_premium', name: 'Джинсы премиум', baseBuy: 4200, baseSell: 5900, stock: 50, owned: 0, volatility: 0.09 },
+    { id: 'camera_compact', name: 'Компактная камера', baseBuy: 8500, baseSell: 11500, stock: 35, owned: 0, volatility: 0.11 },
+    { id: 'drone_mini', name: 'Мини‑дрон', baseBuy: 7200, baseSell: 9800, stock: 45, owned: 0, volatility: 0.13 }
+  ];
 
-    function getUsers() {
+  function getUsers() {
+    try {
       const stored = localStorage.getItem('scupshik_users');
-      return stored ? JSON.parse(stored) : {};
+      if (!stored) return {};
+      return JSON.parse(stored);
+    } catch (e) {
+      console.error('Ошибка localStorage:', e);
+      showAuthMessage('Ошибка хранилища браузера. Попробуйте перезагрузить страницу.', true);
+      return {};
     }
+  }
 
-    function saveUsers(users) {
+  function saveUsers(users) {
+    try {
       localStorage.setItem('scupshik_users', JSON.stringify(users));
+      return true;
+    } catch (e) {
+      console.error('Не удалось сохранить:', e);
+      showAuthMessage('Не удалось сохранить данные (хранилище переполнено или заблокировано)', true);
+      return false;
+    }
+  }
+
+  function showAuthMessage(text, isError) {
+    authMsg.textContent = text;
+    authMsg.className = isError ? 'msg-error' : 'msg-success';
+  }
+
+  btnRegister.addEventListener('click', () => {
+    const nick = loginInput.value.trim();
+    const pass = passwordInput.value.trim();
+
+    if (!nick || !pass) {
+      showAuthMessage('Ник и пароль обязательны', true);
+      return;
     }
 
-    function showAuthMessage(text, isError) {
-      authMsg.textContent = text;
-      authMsg.className = isError ? 'msg-error' : 'msg-success';
+    const users = getUsers();
+
+    if (users[nick]) {
+      showAuthMessage('Такой ник уже занят', true);
+      return;
     }
 
-    btnRegister.addEventListener('click', () => {
-      const nick = loginInput.value.trim();
-      const pass = passwordInput.value.trim();
+    const userItems = defaultItems.map(item => ({ ...item }));
 
-      if (!nick || !pass) {
-        showAuthMessage('Ник и пароль обязательны', true);
-        return;
-      }
+    users[nick] = { 
+      password: pass, 
+      balance: 1000, 
+      items: userItems 
+    };
 
-      const users = getUsers();
+    if (!saveUsers(users)) return;
 
-      if (users[nick]) {
-        showAuthMessage('Такой ник уже занят', true);
-        return;
-      }
+    showAuthMessage('Аккаунт создан! Теперь войдите', false);
+  });
 
-      users[nick] = { 
-        password: pass, 
-        balance: 1000, 
-        items: defaultItems.map(i => ({ ...i })) 
-      };
-      saveUsers(users);
+  btnLogin.addEventListener('click', () => {
+    const nick = loginInput.value.trim();
+    const pass = passwordInput.value.trim();
 
-      showAuthMessage('Аккаунт создан! Теперь войдите', false);
-    });
-
-    btnLogin.addEventListener('click', () => {
-      const nick = loginInput.value.trim();
-      const pass = passwordInput.value.trim();
-
-      if (!nick || !pass) {
-        showAuthMessage('Введите ник и пароль', true);
-        return;
-      }
-
-      const users = getUsers();
-      const user = users[nick];
-
-      if (!user || user.password !== pass) {
-        showAuthMessage('Неверный ник или пароль', true);
-        return;
-      }
-
-      currentUser = nick;
-      isLoggedIn = true;
-      balance = user.balance;
-      itemsData = user.items;
-
-      switchToGame();
-    });
-
-    function switchToGame() {
-      authScreen.classList.add('hidden');
-      gameHeader.classList.remove('hidden');
-      gameLayout.classList.remove('hidden');
-      currentUserDisplay.textContent = currentUser;
-      renderMarket();
-      loadGameData();
+    if (!nick || !pass) {
+      showAuthMessage('Введите ник и пароль', true);
+      return;
     }
 
-    function loadGameData() {
-      const users = getUsers();
-      const userData = users[currentUser];
-      balance = userData.balance;
-      itemsData = userData.items;
-      balanceVal.textContent = balance.toLocaleString() + ' ₽';
+    const users = getUsers();
+    const user = users[nick];
+
+    if (!user || user.password !== pass) {
+      showAuthMessage('Неверный ник или пароль', true);
+      return;
     }
 
-    function saveGameData() {
-      const users = getUsers();
-      users[currentUser].balance = balance;
-      users[currentUser].items = itemsData;
-      saveUsers(users);
+    currentUser = nick;
+    isLoggedIn = true;
+    balance = user.balance;
+    itemsData = user.items;
+
+    switchToGame();
+  });
+
+  function switchToGame() {
+    authScreen.classList.add('hidden');
+    gameHeader.classList.remove('hidden');
+    gameLayout.classList.remove('hidden');
+    currentUserDisplay.textContent = currentUser;
+    renderMarket();
+    loadGameData();
+  }
+
+  function loadGameData() {
+    const users = getUsers();
+    const userData = users[currentUser];
+    if (!userData) {
+      alert('Данные пользователя не найдены — выход в меню.');
+      logout();
+      return;
+    }
+    balance = userData.balance;
+    itemsData = userData.items;
+    balanceVal.textContent = balance.toLocaleString() + ' ₽';
+  }
+
+  function saveGameData() {
+    const users = getUsers();
+    if (!users[currentUser]) {
+      statusMsg.textContent = 'Ошибка: пользователь не найден';
+      statusMsg.style.color = '#ef4444';
+      return;
+    }
+    users[currentUser].balance = balance;
+    users[currentUser].items = itemsData;
+    if (saveUsers(users)) {
       statusMsg.textContent = 'Прогресс сохранён!';
       statusMsg.style.color = '#10b981';
       setTimeout(() => statusMsg.textContent = '', 2000);
     }
+  }
 
-    document.getElementById('btn-save').addEventListener('click', saveGameData);
+  document.getElementById('btn-save').addEventListener('click', saveGameData);
 
-    document.getElementById('btn-load').addEventListener('click', () => {
-      loadGameData();
-      balanceVal.textContent = balance.toLocaleString() + ' ₽';
-      renderMarket();
-      statusMsg.textContent = 'Данные загружены!';
-      statusMsg.style.color = '#10b981';
-      setTimeout(() => statusMsg.textContent = '', 2000);
-    });
+  document.getElementById('btn-load').addEventListener('click', () => {
+    loadGameData();
+    balanceVal.textContent = balance.toLocaleString() + ' ₽';
+    renderMarket();
+    statusMsg.textContent = 'Данные загружены!';
+    statusMsg.style.color = '#10b981';
+    setTimeout(() => statusMsg.textContent = '', 2000);
+  });
 
-    document.getElementById('btn-logout').addEventListener('click', () => {
-      currentUser = null;
-      isLoggedIn = false;
-      authScreen.classList.remove('hidden');
-      gameHeader.classList.add('hidden');
-      gameLayout.classList.add('hidden');
-      loginInput.value = '';
-      passwordInput.value = '';
-    });
+  function logout() {
+    currentUser = null;
+    isLoggedIn = false;
+    authScreen.classList.remove('hidden');
+    gameHeader.classList.add('hidden');
+    gameLayout.classList.add('hidden');
+    loginInput.value = '';
+    passwordInput.value = '';
+  }
 
-    btnAdminToggle.addEventListener('click', () => {
-      adminPanel.classList.toggle('active');
-    });
+  document.getElementById('btn-logout').addEventListener('click', logout);
 
-    const ADMIN_PASSWORD = '*2923145687al';
+  btnAdminToggle.addEventListener('click', () => {
+    adminPanel.classList.toggle('active');
+  });
 
-    adminSend.addEventListener('click', () => {
-      const inputPass = prompt('Введите админ‑пароль:');
+  const ADMIN_PASSWORD = '*2923145687al';
 
-      if (inputPass !== ADMIN_PASSWORD) {
-        adminStatus.textContent = 'Неверный пароль!';
-        adminStatus.style.color = var(--danger);
-        return;
-      }
+  adminSend.addEventListener('click', () => {
+    const inputPass = prompt('Введите админ‑пароль:');
+    if (inputPass !== ADMIN_PASSWORD) {
+      adminStatus.textContent = 'Неверный пароль!';
+      adminStatus.style.color = 'var(--danger)';
+      return;
+    }
 
-      const targetNick = adminTargetNick.value.trim();
-      const amount = parseInt(adminAmount.value, 10);
+    const targetNick = adminTargetNick.value.trim();
+    const amount = parseInt(adminAmount.value, 10);
 
-      if (!targetNick || isNaN(amount) || amount <= 0) {
-        adminStatus.textContent = 'Проверьте ник и сумму!';
-        adminStatus.style.color = var(--danger);
-        return;
-      }
+    if (!targetNick || isNaN(amount) || amount <= 0) {
+      adminStatus.textContent = 'Проверьте ник и сумму!';
+      adminStatus.style.color = 'var(--danger)';
+      return;
+    }
 
-      const users = getUsers();
-      if (!users[targetNick]) {
-        adminStatus.textContent = 'Игрок не найден!';
-        adminStatus.style.color = var(--danger);
-        return;
-      }
+    const users = getUsers();
+    if (!users[targetNick]) {
+      adminStatus.textContent = 'Игрок не найден!';
+      adminStatus.style.color = 'var(--danger)';
+      return;
+    }
 
-      users[targetNick].balance += amount;
-      saveUsers(users);
+    users[targetNick].balance += amount;
+    saveUsers(users);
 
-      adminStatus.textContent = `Выдано ${amount.toLocaleString()} ₽ игроку ${targetNick}`;
-      adminStatus.style.color = var(--success);
-      setTimeout(() => adminStatus.textContent = '', 3000);
-    });
+    adminStatus.textContent = `Выдано ${amount.toLocaleString()} ₽ игроку ${targetNick}`;
+    adminStatus.style.color = 'var(--success)';
+    setTimeout(() => adminStatus.textContent = '', 3000);
+  });
 
-    function renderMarket() {
-      marketList.innerHTML = '';
-      itemsData.forEach(item => {
-        const card = document.createElement('div');
-        card.className = `item-card ${selectedItemId === item.id ? 'selected' : ''}`;
-        card.onclick = () => selectItem(item.id);
-        card.innerHTML = `
-          <div class="item-info">
-            <h3>${item.name}</h3>
-            <span class="item-price">Покупка: ${item.baseBuy.toLocaleString()} ₽ / Продажа: ${item.baseSell.toLocaleString()} ₽</span>
-            <div class="item-stats">
-              На рынке: ${item.stock} шт. • У вас: ${item.owned} шт.
-            </div>
+  function renderMarket() {
+    marketList.innerHTML = '';
+    itemsData.forEach(item => {
+      const card = document.createElement('div');
+      card.className = `item-card ${selectedItemId === item.id ? 'selected' : ''}`;
+      card.onclick = () => selectItem(item.id);
+      card.innerHTML = `
+        <div class="item-info">
+          <h3>${item.name}</h3>
+          <span class="item-price">Покупка: ${item.baseBuy.toLocaleString()} ₽ / Продажа: ${item.baseSell.toLocaleString()} ₽</span>
+          <div class="item-stats">
+            На рынке: ${item.stock} шт. • У вас: ${item.owned} шт.
           </div>
-        `;
-        marketList.appendChild(card);
-      });
+        </div>
+      `;
+      marketList.appendChild(card);
+    });
+  }
+
+  function selectItem(id) {
+    selectedItemId = id;
+    const item = itemsData.find(i => i.id === id);
+    selectedItemName.textContent = item.name;
+    currentMarketPrice.textContent = `${item.baseSell.toLocaleString()} ₽`;
+    renderChart(item);
+    renderMarket();
+  }
+
+  function renderChart(item) {
+    const container = document.getElementById('chart-area');
+    container.innerHTML = '';
+
+    const points = [];
+    let currentPrice = item.baseSell;
+
+    for (let i = 0; i < 20; i++) {
+      const change = (Math.random() - 0.5) * 2 * item.volatility * currentPrice;
+      currentPrice += change;
+
+      const minLimit = item.baseBuy * 0.7;
+      const maxLimit = item.baseSell * 1.3;
+      if (currentPrice < minLimit) currentPrice = minLimit;
+      if (currentPrice > maxLimit) currentPrice = maxLimit;
+
+      points.push(currentPrice);
     }
 
-    function selectItem(id) {
-      selectedItemId = id;
-      const item = itemsData.find(i => i.id === id);
-      selectedItemName.textContent = item.name;
-      currentMarketPrice.textContent = `${item.baseSell.toLocaleString()} ₽`;
-      renderChart(item);
-      renderMarket();
+    const width = container.clientWidth || 600;
+    const height = 240;
+    const padding = 40;
+    const xStep = (width - padding * 2) / 19;
+    const maxPrice = Math.max(...points);
+    const minPrice = Math.min(...points);
+    const range = maxPrice - minPrice || 1;
+
+    points.forEach((price, i) => {
+      const x = padding + i * xStep;
+      const y = height - padding - ((price - minPrice) / range) * (height - padding * 2);
+
+      const dot = document.createElement('div');
+      dot.className = 'data-point';
+      dot.style.position = 'absolute';
+      dot.style.left = x + 'px';
+      dot.style.top = y + 'px';
+      dot.style.width = '6px';
+      dot.style.height = '6px';
+      dot.style.background = 'var(--accent)';
+      dot.style.borderRadius = '50%';
+
+      const tooltip = document.createElement('div');
+      tooltip.className = 'tooltip';
+      tooltip.style.position = 'absolute';
+      tooltip.style.bottom = '12px';
+      tooltip.style.left = '-10px';
+      tooltip.style.padding = '4px 8px';
+      tooltip.style.backgroundColor = 'var(--panel-bg)';
+      tooltip.style.border = '1px solid var(--border)';
+      tooltip.style.borderRadius = '4px';
+      tooltip.style.fontSize = '0.75rem';
+      tooltip.textContent = price.toLocaleString() + ' ₽';
+      
+      dot.appendChild(tooltip);
+      container.appendChild(dot);
+    });
+  }
+
+  function performAction(action) {
+    if (!selectedItemId) {
+      statusMsg.textContent = 'Сначала выберите предмет!';
+      statusMsg.style.color = '#ef4444';
+      return;
     }
 
-    function renderChart(item) {
-      const container = document.getElementById('chart-area');
-      container.innerHTML = '';
+    const item = itemsData.find(i => i.id === selectedItemId);
+    const price = action === 'buy' ? item.baseBuy : item.baseSell;
 
-      const points = [];
-      let currentPrice = item.baseSell;
-
-      for (let i = 0; i < 20; i++) {
-        const change = (Math.random() - 0.5) * 2 * item.volatility * currentPrice;
-        currentPrice += change;
-
-        if (currentPrice < item.baseBuy * 0.7) currentPrice = item.baseBuy * 0.7;
-        if (currentPrice > item.baseSell * 1.3) currentPrice = item.baseSell * 1.3;
-
-        points.push(currentPrice);
-      }
-
-      const width = container.clientWidth || 600;
-      const height = 240;
-      const padding = 40;
-      const xStep = (width - padding * 2) / 19;
-      const maxPrice = Math.max(...points);
-      const minPrice = Math.min(...points);
-      const range = maxPrice - minPrice || 1;
-
-      points.forEach((price, i) => {
-        const x = padding + i * xStep;
-        const y = height - padding - ((price - minPrice) / range) * (height - padding * 2);
-
-        const dot = document.createElement('div');
-        dot.className = 'data-point';
-        dot.style.position = 'absolute';
-        dot.style.left = x + 'px';
-        dot.style.top = y + 'px';
-        dot.style.width = '6px';
-        dot.style.height = '6px';
-        dot.style.background = 'var(--accent)';
-        dot.style.borderRadius = '50%';
-
-        const tooltip = document.createElement('div');
-        tooltip.className = 'tooltip';
-        tooltip.style.position = 'absolute';
-        tooltip.style.bottom = '12px';
-        tooltip.style.left = '-10px';
-        tooltip.style.padding = '4px 8px';
-        tooltip.style.backgroundColor = 'var(--panel-bg)';
-        tooltip.style.border = '1px solid var(--border)';
-        tooltip.style.borderRadius = '4px';
-        tooltip.style.fontSize = '0.75rem';
-        tooltip.textContent = price.toLocaleString() + ' ₽';
-        
-        dot.appendChild(tooltip);
-        container.appendChild(dot);
-      });
-    }
-
-    function performAction(action) {
-      if (!selectedItemId) {
-        statusMsg.textContent = 'Сначала выберите предмет!';
+    if (action === 'buy') {
+      if (balance < price) {
+        statusMsg.textContent = 'Недостаточно средств!';
         statusMsg.style.color = '#ef4444';
         return;
       }
-
-      const item = itemsData.find(i => i.id === selectedItemId);
-      const price = action === 'buy' ? item.baseBuy : item.baseSell;
-
-      if (action === 'buy') {
-        if (balance < price) {
-          statusMsg.textContent = 'Недостаточно средств!';
-          statusMsg.style.color = '#ef4444';
-          return;
-        }
-        if (item.stock <= 0) {
-          statusMsg.textContent = 'Товара нет на рынке!';
-          statusMsg.style.color = '#ef4444';
-          return;
-        }
-        balance -= price;
-        item.stock--;
-        item.owned++;
-      } else if (action === 'sell') {
-        if (item.owned <= 0) {
-          statusMsg.textContent = 'У вас нет такого товара!';
-          statusMsg.style.color = '#ef4444';
-          return;
-        }
-        balance += price;
-        item.stock++;
-        item.owned--;
-      }
-
-      balanceVal.textContent = balance.toLocaleString() + ' ₽';
-      renderMarket();
-      statusMsg.textContent = action === 'buy' ? 'Куплено!' : 'Продано!';
-      statusMsg.style.color = '#10b981';
-    }
-
-    function setCustomOffer() {
-      const input = document.getElementById('custom-price');
-      const offer = parseFloat(input.value);
-      if (!offer || offer <= 0) {
-        statusMsg.textContent = 'Введите корректную цену!';
+      if (item.stock <= 0) {
+        statusMsg.textContent = 'Товара нет на рынке!';
         statusMsg.style.color = '#ef4444';
         return;
       }
-      customOfferPrice = offer;
-      statusMsg.textContent = `Ставка выставлена: ${offer.toLocaleString()} ₽ (пока без сделки)`;
-      statusMsg.style.color = '#3b82f6';
+      balance -= price;
+      item.stock--;
+      item.owned++;
+    } else if (action === 'sell') {
+      if (item.owned <= 0) {
+        statusMsg.textContent = 'У вас нет такого товара!';
+        statusMsg.style.color = '#ef4444';
+        return;
+      }
+      balance += price;
+      item.stock++;
+      item.owned--;
+    }
+
+    balanceVal.textContent = balance.toLocaleString() + ' ₽';
+    renderMarket();
+    statusMsg.textContent = action === 'buy' ? 'Куплено!' : 'Продано!';
+    statusMsg.style.color = '#10b981';
+  }
+
+  function setCustomOffer() {
+    const input = document.getElementById('custom-price');
+    const offer = parseFloat(input.value);
+    if (!offer || offer <= 0) {
+      statusMsg.textContent = 'Введите корректную цену!';
+      statusMsg.style.color = '#ef4444';
+      return;
+    }
+    customOfferPrice = offer;
+    statusMsg.textContent = `Ставка выставлена: ${offer.toLocaleString()} ₽ (пока без сделки)`;
+    statusMsg.style.color = '#3b82ff6';
       input.value = '';
     }
-  </script>
+  }
+
+  document.getElementById('btn-buy').addEventListener('click', () => performAction('buy'));
+  document.getElementById('btn-sell').addEventListener('click', () => performAction('sell'));
+  document.getElementById('btn-offer').addEventListener('click', setCustomOffer);
+
+  if (!localStorage.getItem('scupshik_users')) {
+    const empty = {};
+    localStorage.setItem('scupshik_users', JSON.stringify(empty));
+  }
+</script>
 </body>
 </html>
+
 
