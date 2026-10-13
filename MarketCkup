@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Скупщик</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: Arial, sans-serif; background: #1e1e1e; color: white; min-height: 100vh; padding-bottom: 80px; user-select: none; }
+.topbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: #2b2b2b; position: sticky; top: 0; z-index: 50; }
+.btn-round { width: 44px; height: 44px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; font-size: 20px; color: #1e1e1e; }
+.balance { background: white; color: #1e1e1e; padding: 8px 15px; border-radius: 20px; font-weight: bold; display: flex; align-items: center; gap: 6px; }
+.balance-plus { color: #00c853; font-size: 22px; font-weight: bold; }
+.tabs { display: flex; gap: 10px; padding: 15px; }
+.tab { padding: 12px 20px; border-radius: 25px; background: #2b2b2b; color: #888; font-weight: bold; cursor: pointer; border: none; font-size: 14px; transition: background 0.2s; }
+.tab.active { background: #ff8c1a; color: white; }
+.content { padding: 0 15px; }
+.empty { color: #666; padding: 40px 0; font-size: 16px; }
+.bottombar { position: fixed; bottom: 0; left: 0; right: 0; background: #2b2b2b; display: flex; justify-content: space-around; align-items: center; padding: 10px 0; z-index: 50; }
+.bottom-btn { background: none; border: none; color: #888; font-size: 26px; cursor: pointer; padding: 5px 15px; }
+.bottom-btn.active { color: #00aaff; }
+.modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
+.modal.open { display: flex; }
+.modal-content { background: #2b2b2b; border-radius: 20px; padding: 25px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
+.modal-title { font-size: 22px; font-weight: bold; margin-bottom: 20px; text-align: center; }
+.setting-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #3a3a3a; }
+.setting-label { font-size: 16px; }
+.theme-toggle { display: flex; background: #1e1e1e; border-radius: 20px; padding: 3px; }
+.theme-btn { padding: 8px 16px; border: none; background: none; color: #888; border-radius: 17px; cursor: pointer; font-weight: bold; }
+.theme-btn.active { background: #00aaff; color: white; }
+input[type=range] { -webkit-appearance: none; width: 140px; height: 6px; background: #1e1e1e; border-radius: 3px; outline: none; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; background: #00aaff; border-radius: 50%; cursor: pointer; }
+.price-display { background: white; color: #1e1e1e; font-size: 28px; font-weight: bold; text-align: center; padding: 18px; border-radius: 50px; margin: 15px 0; }
+.slider-wrap { position: relative; margin: 25px 0; }
+.slider-labels { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 8px; }
+.slider-labels .green { color: #00c853; }
+.slider-labels .red { color: #ff1744; }
+.slider-track { position: relative; height: 8px; border-radius: 4px; background: linear-gradient(to right, #00c853 0%, #00c853 20%, #00aaff 30%, #00aaff 70%, #ff1744 80%, #ff1744 100%); }
+.slider-input { -webkit-appearance: none; width: 100%; height: 8px; background: transparent; position: absolute; top: 0; margin: 0; pointer-events: none; }
+.slider-input::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; background: white; border: 3px solid #ff1744; border-radius: 50%; cursor: pointer; pointer-events: auto; margin-top: -8px; }
+.price-caption { text-align: center; font-size: 18px; font-weight: bold; margin-top: 15px; }
+.price-caption .up { color: #ff1744; }
+.price-caption .down { color: #00c853; }
+.price-caption .normal { color: #00aaff; }
+.big-btn { width: 100%; padding: 18px; background: #00aaff; color: white; border: none; border-radius: 15px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+.big-btn:hover { background: #0091ea; }
+body.light { background: #f0f0f0; color: #1e1e1e; }
+body.light .topbar, body.light .bottombar { background: #ffffff; }
+body.light .btn-round { background: #1e1e1e; color: white; }
+body.light .balance { background: #1e1e1e; color: white; }
+body.light .tab { background: #e0e0e0; color: #666; }
+body.light .modal-content { background: #ffffff; color: #1e1e1e; }
+body.light .setting-row { border-bottom-color: #e0e0e0; }
+body.light .theme-toggle { background: #e0e0e0; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+    <button class="btn-round" onclick="openModal('settingsModal')">⚙️</button>
+    <div class="balance"><span class="balance-plus">+</span> <span id="balanceValue">0</span> ₽</div>
+</div>
+
+<div class="tabs">
+    <button class="tab active" onclick="switchTab('market', this)">МАРКЕТ</button>
+    <button class="tab" onclick="switchTab('my-sales', this)">МОИ ПРОДАЖИ</button>
+</div>
+
+<div class="content">
+    <div id="marketContent" class="empty">Тут будут предметы из маркета.</div>
+    <div id="mySalesContent" class="empty" style="display:none;">У вас пока нет продаж. Нажмите «+», чтобы выставить предмет.</div>
+</div>
+
+<div class="bottombar">
+    <button class="bottom-btn" onclick="openInventory()">💼</button>
+    <button class="bottom-btn" onclick="alert('Чат в разработке')">💬</button>
+    <button class="bottom-btn" onclick="alert('Молния в разработке')">⚡</button>
+</div>
+
+<div class="modal" id="settingsModal">
+    <div class="modal-content">
+        <div class="modal-title">⚙️ Настройки</div>
+        <div class="setting-row">
+            <div class="setting-label">Тема</div>
+            <div class="theme-toggle">
+                <button class="theme-btn active" id="themeLight" onclick="setTheme('light')">Светлая</button>
+                <button class="theme-btn" id="themeDark" onclick="setTheme('dark')">Тёмная</button>
+            </div>
+        </div>
+        <div class="setting-row">
+            <div class="setting-label">Громкость SFX</div>
+            <input type="range" min="0" max="100" value="70" id="sfxVolume">
+        </div>
+        <div class="setting-row">
+            <div class="setting-label">Громкость музыки</div>
+            <input type="range" min="0" max="100" value="50" id="musicVolume">
+        </div>
+        <button class="big-btn" onclick="closeModal('settingsModal')">Закрыть</button>
+    </div>
+</div>
+
+<div class="modal" id="inventoryModal">
+    <div class="modal-content">
+        <div class="modal-title">Инвентарь</div>
+        <div id="inventoryContent"></div>
+        <button class="big-btn" onclick="closeModal('inventoryModal')">Закрыть</button>
+    </div>
+</div>
+
+<div class="modal" id="sellModal">
+    <div class="modal-content">
+        <div class="modal-title" id="sellCaption">Твоя цена рыночная</div>
+        <div class="price-display" id="sellPrice">0 ₽</div>
+        <div class="slider-wrap">
+            <div class="slider-labels">
+                <span class="green" id="minPriceLabel">50 ₽</span>
+                <span class="red" id="maxPriceLabel">125 ₽</span>
+            </div>
+            <div class="slider-track"></div>
+            <input type="range" class="slider-input" id="priceSlider" min="50" max="125" value="87">
+        </div>
+        <div class="price-caption" id="priceCaption">Твоя цена рыночная</div>
+        <button class="big-btn" onclick="confirmSell()">Выставить на продажу</button>
+    </div>
+</div>
+
+<script>
+const ITEMS = [{ id: 'pencil', name: 'Карандаш', image: '✏️', minPrice: 50, maxPrice: 125, marketPrice: 87 }];
+let balance = 1000;
+let mySales = [];
+let currentItemIndex = 0;
+
+function updateBalance() { document.getElementById('balanceValue').textContent = balance; }
+
+function switchTab(tab, btn) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('marketContent').style.display = tab === 'market' ? 'block' : 'none';
+    document.getElementById('mySalesContent').style.display = tab === 'my-sales' ? 'block' : 'none';
+    if (tab === 'my-sales') renderMySales();
+}
+
+function renderMySales() {
+    const el = document.getElementById('mySalesContent');
+    if (mySales.length === 0) {
+        el.innerHTML = 'У вас пока нет продаж. Нажмите «+», чтобы выставить предмет.';
+        el.className = 'empty';
+    } else {
+        el.className = '';
+        el.innerHTML = mySales.map((sale, i) => `<div style="background:#2b2b2b; border-radius:15px; padding:15px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;"><div><div style="font-weight:bold;">${sale.name}</div><div style="color:#00aaff; margin-top:5px;">${sale.price} ₽</div></div><button onclick="removeSale(${i})" style="background:#ff1744; color:white; border:none; padding:8px 12px; border-radius:10px; cursor:pointer;">Убрать</button></div>`).join('');
+    }
+}
+
+function removeSale(index) { mySales.splice(index, 1); renderMySales(); }
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function openInventory() { currentItemIndex = 0; renderInventory(); openModal('inventoryModal'); }
+
+function renderInventory() {
+    const item = ITEMS[currentItemIndex];
+    document.getElementById('inventoryContent').innerHTML = `<div style="text-align:center; margin-bottom:20px;"><div style="font-size:80px; margin-bottom:10px;">${item.image}</div><div style="font-size:20px; font-weight:bold;">${item.name}</div><div style="color:#888; margin-top:5px;">Рыночная цена: ${item.marketPrice} ₽</div></div><button class="big-btn" onclick="openSell()">Выставить на продажу</button><button class="big-btn" style="background:#00c853; margin-top:10px;" onclick="instantSell()">Продать за ${item.marketPrice} ₽</button>`;
+}
+
+function openSell() {
+    const item = ITEMS[currentItemIndex];
+    const slider = document.getElementById('priceSlider');
+    slider.min = item.minPrice;
+    slider.max = item.maxPrice;
+    slider.value = item.marketPrice;
+    document.getElementById('minPriceLabel').textContent = item.minPrice + ' ₽';
+    document.getElementById('maxPriceLabel').textContent = item.maxPrice + ' ₽';
+    updatePriceCaption();
+    closeModal('inventoryModal');
+    openModal('sellModal');
+}
+
+function updatePriceCaption() {
+    const item = ITEMS[currentItemIndex];
+    const val = parseInt(document.getElementById('priceSlider').value);
+    const caption = document.getElementById('sellCaption');
+    const priceCaption = document.getElementById('priceCaption');
+    document.getElementById('sellPrice').textContent = val + ' ₽';
+    const range = item.maxPrice - item.minPrice;
+    const pos = (val - item.minPrice) / range;
+    if (pos < 0.35) {
+        caption.textContent = 'Твоя цена ниже рынка';
+        priceCaption.className = 'price-caption down';
+        priceCaption.textContent = 'Твоя цена ниже рынка';
+    } else if (pos > 0.65) {
+        caption.textContent = 'Твоя цена выше рынка';
+        priceCaption.className = 'price-caption up';
+        priceCaption.textContent = 'Твоя цена выше рынка';
+    } else {
+        caption.textContent = 'Твоя цена рыночная';
+        priceCaption.className = 'price-caption normal';
+        priceCaption.textContent = 'Твоя цена рыночная';
+    }
+}
+
+document.getElementById('priceSlider').addEventListener('input', updatePriceCaption);
+
+function confirmSell() {
+    const item = ITEMS[currentItemIndex];
+    const price = parseInt(document.getElementById('priceSlider').value);
+    mySales.push({ name: item.name, price: price });
+    closeModal('sellModal');
+    alert('Товар выставлен на продажу за ' + price + ' ₽');
+}
+
+function instantSell() {
+    const item = ITEMS[currentItemIndex];
+    balance += item.marketPrice;
+    updateBalance();
+    closeModal('inventoryModal');
+    alert('Продано за ' + item.marketPrice + ' ₽');
+}
+
+function setTheme(theme) {
+    const body = document.body;
+    document.getElementById('themeLight').classList.remove('active');
+    document.getElementById('themeDark').classList.remove('active');
+    if (theme === 'light') {
+        body.classList.add('light');
+        document.getElementById('themeLight').classList.add('active');
+    } else {
+        body.classList.remove('light');
+        document.getElementById('themeDark').classList.add('active');
+    }
+}
+
+updateBalance();
+</script>
+</body>
+</html>
