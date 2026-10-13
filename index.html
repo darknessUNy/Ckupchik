@@ -149,7 +149,6 @@
       <div class="controls-group">
         <button id="btn-theme" title="Тема">🌙 Тема (Светлая)</button>
         <button id="btn-sfx" class="btn-active" title="Звуки">🔊 SFX (Вкл)</button>
-        <button id="btn-music" title="Музыка">🎵 Джаз (Выкл)</button>
       </div>
     </header>
     <div class="game-layout">
@@ -175,7 +174,7 @@
             <button class="btn-big btn-sell" onclick="performAction('sell')">Продать по рынку</button>
             <div style="display:flex; gap:0.5rem; align-items:center;">
               <input type="number" id="custom-price" placeholder="Ваша цена" min="1">
-              <button class="btn-big btn-offer" onclick="performAction('offer')">Выставить свою цену</button>
+              <button class="btn-big btn-offer" onclick="setCustomOffer()">Выставить свою цену</button>
             </div>
           </div>
           <p id="status-msg" style="margin-top:1rem; font-size:0.9rem;"></p>
@@ -211,9 +210,10 @@
       let selectedItemId = null;
       let chartData = [];
       let isSfxOn = true;
-      let isMusicOn = false;
       let audioCtx = null; 
-      
+      let customOfferPrice = null;
+      let offerTimer = null;
+
       const marketListEl = document.getElementById('market-list');
       const balanceEl = document.getElementById('balance-val');
       const statusMsgEl = document.getElementById('status-msg');
@@ -223,7 +223,6 @@
 
       document.getElementById('btn-theme').addEventListener('click', toggleTheme);
       document.getElementById('btn-sfx').addEventListener('click', toggleSFX);
-      document.getElementById('btn-music').addEventListener('click', playMusic);
 
       function init() {
         renderMarket();
@@ -242,9 +241,9 @@
           card.innerHTML = `
             <div class="item-info">
               <h3>${item.name}</h3>
-              <span class="item-price">Рынок: ~
               <span class="item-price">Рынок: ~${item.baseSell.toLocaleString()} ₽</span>
-              <div class="item-stats">На рынке: ${item.stock} | У вас: <b ${ownedClass}>${item.owned}</b></div>
+              <div class="item-stats">На рынке: ${item.stock} | У
+              вас: <b ${ownedClass}>${item.owned}</b></div>
             </div>`;
           marketListEl.appendChild(card);
         });
@@ -259,6 +258,9 @@
         selectedNameEl.textContent = item.name;
         currentPriceEl.textContent = (item.buyPrice || item.baseBuy).toLocaleString() + ' ₽';
         customPriceInput.value = '';
+        customOfferPrice = null;
+        clearInterval(offerTimer);
+        offerTimer = null;
         
         chartData = [];
         for(let i = 0; i < 20; i++) {
@@ -330,7 +332,7 @@
 
           point.addEventListener('click', (e) => {
             e.stopPropagation(); 
-            showStatus(`Вы кликнули на цену: ${price.toLocaleString()} ₽`, true);
+            showStatus(`Цена в этой точке: ${price.toLocaleString()} ₽`, true);
             playSound('success');
           });
 
@@ -342,38 +344,6 @@
         ctx.textAlign = 'right';
         ctx.fillText(max.toLocaleString(), padding - 5, padding);
         ctx.fillText(min.toLocaleString(), padding - 5, h - padding);
-      }
-
-      function playMusic() {
-        if (isMusicOn) {
-          isMusicOn = false;
-          document.getElementById('btn-music').textContent = '🎵 Джаз (Выкл)';
-          if(audioCtx) audioCtx.close();
-          audioCtx = null;
-          return;
-        }
-        isMusicOn = true;
-        document.getElementById('btn-music').textContent = '🎵 Джаз (Играет)';
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContext) return;
-        if(!audioCtx) audioCtx = new AudioContext();
-        
-        function playNote(freq, time, dur) {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(freq, time);
-          gain.gain.setValueAtTime(0.05, time);
-          gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
-          osc.start(time);
-          osc.stop(time + dur);
-        }
-        playNote(392, 0, 0.3); playNote(440, 0.3, 0.3);
-        playNote(523, 0.6, 0.3); playNote(659, 0.9, 0.3);
-        playNote(784, 1.2, 0.3); playNote(659, 1.5, 0.3);
-        playNote(523, 1.8, 0.3); playNote(440, 2.1, 0.3);
       }
 
       function toggleTheme() {
@@ -438,9 +408,66 @@
             chartData.shift();
             chartData.push(item.baseBuy);
             drawChart(chartData);
+
+            checkCustomOffer(item);
           }
           renderMarket(); 
         }, 3000); 
+      }
+
+      function setCustomOffer() {
+        if (!selectedItemId) {
+          showStatus('Сначала выберите предмет слева!', false);
+          playSound('error');
+          return;
+        }
+
+        const price = parseInt(customPriceInput.value);
+        if (!price || price <= 0) {
+          showStatus('Введите корректную цену!', false);
+          playSound('error');
+          return;
+        }
+
+        if (balance < price) {
+          showStatus('Недостаточно средств для такой ставки', false);
+          playSound('error');
+          return;
+        }
+
+        customOfferPrice = price;
+        showStatus(`Ставка установлена: ${price.toLocaleString()} ₽. Ждём совпадения цены...`, true);
+        playSound('success');
+      }
+
+      function checkCustomOffer(item) {
+        if (customOfferPrice === null) return;
+
+        // Проверяем, достигла ли цена нужной отметки (с допуском 10₽ для плавности)
+        if (Math.abs(item.baseBuy - customOfferPrice) <= 10) {
+          // Сделка проходит
+          balance -= customOfferPrice;
+          item.stock--;
+          item.owned++;
+          customOfferPrice = null;
+          clearInterval(offerTimer);
+          offerTimer = null;
+
+          showStatus(`Сделка прошла! Куплено: ${item.name} за ${customOfferPrice.toLocaleString()} ₽`, true);
+          balanceEl.textContent = balance.toLocaleString();
+          renderMarket();
+          playSound('success');
+        } else {
+          // Если цена ушла далеко от ставки — можно отменить или оставить ждать
+          // Здесь оставляем ждать. Если хочешь автоотмену — раскомментируй блок ниже:
+          /*
+          if (Math.abs(item.baseBuy - customOfferPrice) > 500) {
+            customOfferPrice = null;
+            showStatus('Цена слишком сильно отклонилась, ставка снята', false);
+            playSound('error');
+          }
+          */
+        }
       }
 
       function performAction(action) {
@@ -451,17 +478,9 @@
         }
 
         const item = itemsData.find(i => i.id === selectedItemId);
-        const price = action === 'offer' 
-          ? parseInt(customPriceInput.value) 
-          : (action === 'buy' ? item.baseBuy : item.baseSell);
-
-        if (!price || price <= 0) {
-          showStatus('Введите корректную цену!', false);
-          playSound('error');
-          return;
-        }
 
         if (action === 'buy') {
+          const price = item.baseBuy;
           if (balance >= price && item.stock > 0) {
             balance -= price;
             item.stock--;
@@ -490,26 +509,6 @@
             showStatus('У вас нет этого предмета', false);
             playSound('error');
           }
-        } else if (action === 'offer') {
-          if (price <= 0) {
-            showStatus('Цена должна быть больше 0', false);
-            return;
-          }
-          if (balance >= price && item.stock > 0) {
-            balance -= price;
-            item.stock--;
-            item.owned++;
-            showStatus(`Сделка по вашей цене: ${item.name} за ${price.toLocaleString()} ₽`, true);
-            balanceEl.textContent = balance.toLocaleString();
-            renderMarket();
-            playSound('success');
-          } else {
-            let reason = '';
-            if (balance < price) reason = 'Недостаточно средств для вашей цены';
-            else if (item.stock <= 0) reason = 'Нет на складе';
-            showStatus(reason, false);
-            playSound('error');
-          }
         }
       }
 
@@ -517,6 +516,51 @@
         statusMsgEl.textContent = msg;
         statusMsgEl.style.color = isSuccess ? 'var(--success)' : 'var(--danger)';
       }
+
+      // Фоновая расслабляющая музыка (синтезаторный лоу-фай)
+      function startBackgroundMusic() {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        if(audioCtx) return; // уже запущена
+        audioCtx = new AudioContext();
+
+        function playChord(notes, time, dur) {
+          notes.forEach(freq => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'triangle';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.03, time);
+            gain.gain.exponentialRampToValueAtTime(0.002, time + dur);
+            osc.start(time);
+            osc.stop(time + dur);
+          });
+        }
+
+        // Простой паттерн аккордов (Am-F-C-G) в лоу-фай стиле
+        const chords = [
+          [440, 554, 659], // A-C#-E (Am)
+          [349, 440, 523], // F-A-C
+          [262, 330, 392], // C-E-G
+          [392, 494, 587]  // G-B-D
+        ];
+
+        chords.forEach((notes, idx) => {
+          playChord(notes, idx * 2, 2); // каждый аккорд 2 секунды
+        });
+
+        // Повторяем каждые 8 секунд
+        setInterval(() => {
+          chords.forEach((notes, idx) => {
+            playChord(notes, idx * 2, 2);
+          });
+        }, 8000);
+      }
+
+      // Запускаем музыку сразу при загрузке (тихая, фоновая)
+      startBackgroundMusic();
 
       init();
     </script>
