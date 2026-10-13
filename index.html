@@ -15,9 +15,10 @@ body { font-family: Arial, sans-serif; background: #1e1e1e; color: white; min-he
 .empty { color: #666; padding: 40px 0; font-size: 16px; text-align: center; }
 
 .bottombar { position: fixed; bottom: 0; left: 0; right: 0; background: #2b2b2b; display: flex; justify-content: space-around; align-items: center; padding: 10px 0 15px; z-index: 50; }
-.bottom-btn { background: none; border: none; color: #888; font-size: 24px; cursor: pointer; padding: 5px 10px; }
+.bottom-btn { background: none; border: none; color: #888; font-size: 24px; cursor: pointer; padding: 5px 10px; position: relative; }
 .bottom-btn.active { color: #00aaff; }
 .bottom-btn.main { background: white; color: #1e1e1e; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: -20px; font-size: 24px; }
+.chat-badge { position: absolute; top: 0; right: 2px; background: #ff1744; color: white; border-radius: 50%; min-width: 18px; height: 18px; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
 
 .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 100; justify-content: center; align-items: center; padding: 15px; }
 .modal.open { display: flex; }
@@ -33,6 +34,7 @@ input[type=range] { -webkit-appearance: none; width: 140px; height: 6px; backgro
 input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; background: #00aaff; border-radius: 50%; cursor: pointer; }
 
 .big-btn { width: 100%; padding: 16px; background: #00aaff; color: white; border: none; border-radius: 15px; font-size: 17px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+.green-btn { background: #00c853; }
 
 .tabs { display: flex; gap: 10px; margin-bottom: 15px; }
 .tab { flex: 1; padding: 12px; border-radius: 25px; background: #2b2b2b; color: #888; font-weight: bold; cursor: pointer; border: none; font-size: 14px; }
@@ -79,6 +81,34 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px;
 .price-caption.up { color: #ff1744; }
 .price-caption.normal { color: #00aaff; }
 
+.chests-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.chest-card { background: white; border-radius: 18px; padding: 15px; text-align: center; box-shadow: 0 0 12px rgba(255,140,26,0.6); border: 2px solid #ff8c1a; cursor: pointer; }
+.chest-card img { width: 100%; height: 110px; object-fit: contain; margin-bottom: 8px; }
+.chest-card .name { color: #1e1e1e; font-weight: bold; font-size: 15px; margin-bottom: 6px; }
+.chest-card .price { color: #00c853; font-weight: bold; font-size: 18px; }
+
+.roulette-wrap { background: #1e1e1e; border-radius: 15px; padding: 15px 0; margin: 15px 0; overflow: hidden; position: relative; }
+.roulette-pointer { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 18px solid #ff1744; z-index: 5; }
+.roulette-pointer-bottom { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-bottom: 18px solid #ff1744; z-index: 5; }
+.roulette-line { display: flex; gap: 10px; }
+.roulette-item { flex: 0 0 90px; height: 90px; background: #2b2b2b; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 2px solid #3a3a3a; }
+.roulette-item img { max-width: 70%; max-height: 70%; object-fit: contain; }
+
+.result-box { text-align: center; padding: 15px; }
+.result-box img { width: 120px; height: 120px; object-fit: contain; margin-bottom: 10px; }
+.result-box .result-name { font-size: 20px; font-weight: bold; margin-bottom: 5px; }
+.result-box .result-rarity { font-size: 14px; color: #ff8c1a; font-weight: bold; }
+
+.chat-list { display: flex; flex-direction: column; gap: 10px; max-height: 60vh; overflow-y: auto; padding: 5px; }
+.chat-msg { display: flex; flex-direction: column; max-width: 85%; }
+.chat-msg.bot { align-self: flex-start; }
+.chat-msg.me { align-self: flex-end; }
+.chat-msg .who { font-size: 11px; color: #888; margin-bottom: 3px; padding: 0 5px; }
+.chat-msg .bubble { background: #3a3a3a; padding: 10px 14px; border-radius: 15px; font-size: 14px; line-height: 1.4; word-break: break-word; }
+.chat-msg.me .bubble { background: #00aaff; }
+.chat-msg .reply-btn { margin-top: 6px; background: #00c853; color: white; border: none; padding: 8px 12px; border-radius: 10px; font-weight: bold; font-size: 12px; cursor: pointer; align-self: flex-start; }
+.chat-empty { text-align: center; color: #666; padding: 40px 10px; }
+
 body.light { background: #f0f0f0; color: #1e1e1e; }
 body.light .topbar, body.light .bottombar { background: #ffffff; }
 body.light .btn-round { background: #1e1e1e; color: white; }
@@ -87,6 +117,10 @@ body.light .tab { background: #e0e0e0; color: #666; }
 body.light .modal-content { background: #ffffff; color: #1e1e1e; }
 body.light .setting-row { border-bottom-color: #e0e0e0; }
 body.light .theme-toggle { background: #e0e0e0; }
+body.light .roulette-wrap { background: #e0e0e0; }
+body.light .roulette-item { background: #ffffff; border-color: #cccccc; }
+body.light .chat-msg .bubble { background: #e0e0e0; }
+body.light .chat-msg.me .bubble { background: #00aaff; color: white; }
 </style>
 </head>
 <body>
@@ -102,10 +136,10 @@ body.light .theme-toggle { background: #e0e0e0; }
 
 <div class="bottombar">
     <button class="bottom-btn" id="btnMarket" onclick="switchPage('market')">🛒</button>
-    <button class="bottom-btn" id="btnChest" onclick="openChest()">🎁</button>
+    <button class="bottom-btn" id="btnChest" onclick="openChests()">🎁</button>
     <button class="bottom-btn" id="btnHammer" onclick="switchPage('sales')">🔨</button>
     <button class="bottom-btn main" id="btnInv" onclick="openInventory()">💼</button>
-    <button class="bottom-btn" id="btnChat" onclick="alert('Чат в разработке')">💬</button>
+    <button class="bottom-btn" id="btnChat" onclick="openChat()">💬<span class="chat-badge" id="chatBadge" style="display:none;">0</span></button>
     <button class="bottom-btn" id="btnShop" onclick="alert('Магазин в разработке')">🏪</button>
     <button class="bottom-btn" id="btnIndex" onclick="openIndex()">⚡</button>
 </div>
@@ -166,13 +200,58 @@ body.light .theme-toggle { background: #e0e0e0; }
     </div>
 </div>
 
+<div class="modal" id="chestOpenModal">
+    <div class="modal-content">
+        <div class="modal-title" id="chestOpenTitle">Открытие ящика</div>
+        <div class="roulette-wrap">
+            <div class="roulette-pointer"></div>
+            <div class="roulette-line" id="rouletteLine"></div>
+            <div class="roulette-pointer-bottom"></div>
+        </div>
+        <button class="big-btn green-btn" id="chestOpenBtn" onclick="startChestSpin()">Открыть за 100 ₽</button>
+        <button class="big-btn" onclick="closeModal('chestOpenModal')">Закрыть</button>
+    </div>
+</div>
+
+<div class="modal" id="resultModal">
+    <div class="modal-content">
+        <div class="modal-title">🎉 Твой предмет</div>
+        <div class="result-box" id="resultBox"></div>
+        <button class="big-btn" onclick="closeModal('resultModal')">Забрать</button>
+    </div>
+</div>
+
+<div class="modal" id="chatModal">
+    <div class="modal-content">
+        <div class="modal-title">💬 Чат покупателей</div>
+        <div class="chat-list" id="chatList"></div>
+        <button class="big-btn" onclick="closeModal('chatModal')">Закрыть</button>
+    </div>
+</div>
+
 <script>
 const ITEMS = [
-    { id: 'pencil', name: 'Карандаш', image: 'https://cdn-icons-png.flaticon.com/512/1073/1073475.png', minPrice: 10, maxPrice: 250, marketPrice: 100, reward: 250, rarity: 'Обычный' }
+    { id: 'pencil', name: 'Карандаш', image: 'https://cdn-icons-png.flaticon.com/512/1073/1073475.png', minPrice: 10, maxPrice: 250, marketPrice: 100, reward: 250, rarity: 'Обычный' },
+    { id: 'pen', name: 'Ручка', image: 'https://cdn-icons-png.flaticon.com/512/1250/1250615.png', minPrice: 15, maxPrice: 200, marketPrice: 80, reward: 200, rarity: 'Обычный' },
+    { id: 'eraser', name: 'Ластик', image: 'https://cdn-icons-png.flaticon.com/512/2933/2933167.png', minPrice: 20, maxPrice: 180, marketPrice: 70, reward: 180, rarity: 'Обычный' },
+    { id: 'ruler', name: 'Линейка', image: 'https://cdn-icons-png.flaticon.com/512/2942/2942801.png', minPrice: 25, maxPrice: 300, marketPrice: 120, reward: 300, rarity: 'Редкий' },
+    { id: 'notebook', name: 'Тетрадь', image: 'https://cdn-icons-png.flaticon.com/512/2232/2232688.png', minPrice: 30, maxPrice: 400, marketPrice: 150, reward: 400, rarity: 'Редкий' }
 ];
 
 const CHESTS = [
-    { id: 'school', name: 'Школьный сундук', price: 100, drops: [{ itemId: 'pencil', chance: 100 }] }
+    {
+        id: 'cardboard',
+        name: 'Картонный ящик',
+        price: 100,
+        image: 'https://cdn-icons-png.flaticon.com/512/679/679720.png',
+        drops: [
+            { itemId: 'pencil', chance: 50 },
+            { itemId: 'pen', chance: 25 },
+            { itemId: 'eraser', chance: 15 },
+            { itemId: 'ruler', chance: 7 },
+            { itemId: 'notebook', chance: 3 }
+        ]
+    }
 ];
 
 let state = {
@@ -184,8 +263,14 @@ let state = {
     marketResetTime: 0,
     theme: 'dark',
     sfxVolume: 70,
-    musicVolume: 50
+    musicVolume: 50,
+    chat: [],
+    chatBadge: 0
 };
+
+let currentChest = null;
+let isSpinning = false;
+let botTimers = [];
 
 function save() { localStorage.setItem('skupchik_save', JSON.stringify(state)); }
 
@@ -198,11 +283,10 @@ function load() {
     setTheme(state.theme || 'dark');
     document.getElementById('sfxVolume').value = state.sfxVolume;
     document.getElementById('musicVolume').value = state.musicVolume;
+    updateChatBadge();
 }
 
-function updateBalance() {
-    document.getElementById('balanceValue').textContent = state.balance;
-}
+function updateBalance() { document.getElementById('balanceValue').textContent = state.balance; }
 
 function setTheme(theme) {
     state.theme = theme;
@@ -238,9 +322,7 @@ function switchPage(page) {
 function renderMarket() {
     const el = document.getElementById('mainContent');
     const now = Date.now();
-    if (now > state.marketResetTime || state.marketItems.length === 0) {
-        generateMarket();
-    }
+    if (now > state.marketResetTime || state.marketItems.length === 0) generateMarket();
     if (state.marketItems.length === 0) {
         el.innerHTML = '<div class="empty">Товары скоро появятся...</div>';
         return;
@@ -256,9 +338,7 @@ function renderMarket() {
 
 function generateMarket() {
     state.marketItems = ITEMS.map(item => {
-        const min = item.minPrice;
-        const max = item.maxPrice;
-        const price = Math.floor(Math.random() * (max - min + 1)) + min;
+        const price = Math.floor(Math.random() * (item.maxPrice - item.minPrice + 1)) + item.minPrice;
         return { ...item, marketPrice: price };
     });
     state.marketResetTime = Date.now() + 15 * 60 * 1000;
@@ -276,13 +356,19 @@ function renderSales() {
             <div>
                 <div style="font-weight:bold;">${sale.name}</div>
                 <div style="color:#00aaff; margin-top:5px;">${sale.price} ₽</div>
+                ${sale.sold ? '<div style="color:#00c853; margin-top:3px; font-weight:bold;">ПРОДАНО</div>' : ''}
             </div>
-            <button onclick="removeSale(${i})" style="background:#ff1744; color:white; border:none; padding:8px 12px; border-radius:10px; cursor:pointer;">Убрать</button>
+            ${sale.sold ? '' : `<button onclick="removeSale(${i})" style="background:#ff1744; color:white; border:none; padding:8px 12px; border-radius:10px; cursor:pointer;">Убрать</button>`}
         </div>
     `).join('');
 }
 
-function removeSale(index) { state.mySales.splice(index, 1); save(); renderSales(); }
+function removeSale(index) {
+    state.mySales.splice(index, 1);
+    save();
+    renderSales();
+    restartBotTimers();
+}
 
 function openInventory() {
     switchInvTab('inv');
@@ -322,7 +408,7 @@ function renderInventory() {
     const view = document.getElementById('invView');
     if (state.inventory.length === 0) {
         view.className = '';
-        view.innerHTML = '<div class="empty">Инвентарь пуст. Открой сундук!</div>';
+        view.innerHTML = '<div class="empty">Инвентарь пуст. Открой ящик!</div>';
         return;
     }
     view.className = 'inv-grid';
@@ -341,11 +427,7 @@ function renderCollection() {
     const grid = document.getElementById('collectionGrid');
     const progressEl = document.getElementById('collectionProgress');
     if (!grid) return;
-
-    const total = ITEMS.length;
-    const collectedCount = state.collected.length;
-    progressEl.textContent = collectedCount + '/' + total;
-
+    progressEl.textContent = state.collected.length + '/' + ITEMS.length;
     grid.innerHTML = ITEMS.map(item => {
         const isCollected = state.collected.includes(item.id);
         return `
@@ -397,10 +479,8 @@ function updatePriceCaption() {
     const caption = document.getElementById('sellCaption');
     const priceCaption = document.getElementById('priceCaption');
     document.getElementById('sellPrice').textContent = val + ' ₽';
-
     const range = item.maxPrice - item.minPrice;
     const pos = range === 0 ? 0.5 : (val - item.minPrice) / range;
-
     if (pos < 0.35) {
         caption.textContent = 'Твоя цена ниже рынка';
         priceCaption.className = 'price-caption down';
@@ -424,55 +504,59 @@ function confirmSell() {
     const item = state.inventory[index];
     if (!item) return;
     const price = parseInt(slider.value);
-    state.mySales.push({ name: item.name, price: price });
+    state.mySales.push({ name: item.name, price: price, itemId: item.id, sold: false });
     state.inventory.splice(index, 1);
     save();
     closeModal('sellModal');
     renderInventory();
     alert('Товар выставлен на продажу за ' + price + ' ₽');
+    restartBotTimers();
 }
 
-function openChest() {
-    const chest = CHESTS[0];
-    if (state.balance < chest.price) {
-        alert('Недостаточно средств! Нужно ' + chest.price + ' ₽');
-        return;
-    }
-    if (!confirm('Открыть ' + chest.name + ' за ' + chest.price + ' ₽?')) return;
+function openChests() {
+    document.querySelectorAll('.bottom-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('btnChest').classList.add('active');
+    const el = document.getElementById('mainContent');
+    el.innerHTML = `<div class="chests-grid">${CHESTS.map(chest => `
+        <div class="chest-card" onclick="openChestMenu('${chest.id}')">
+            <img src="${chest.image}" alt="${chest.name}">
+            <div class="name">${chest.name}</div>
+            <div class="price">${chest.price} ₽</div>
+        </div>
+    `).join('')}</div>`;
+}
 
-    state.balance -= chest.price;
-    updateBalance();
+function openChestMenu(chestId) {
+    const chest = CHESTS.find(c => c.id === chestId);
+    if (!chest) return;
+    currentChest = chest;
+    isSpinning = false;
+    document.getElementById('chestOpenTitle').textContent = chest.name;
+    const btn = document.getElementById('chestOpenBtn');
+    btn.textContent = 'Открыть за ' + chest.price + ' ₽';
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    buildRoulette(chest);
+    openModal('chestOpenModal');
+}
 
+function buildRoulette(chest) {
+    const line = document.getElementById('rouletteLine');
+    line.style.transition = 'none';
+    line.style.transform = 'translateX(0px)';
+    const items = chest.drops.map(d => ITEMS.find(i => i.id === d.itemId)).filter(Boolean);
+    const repeated = [];
+    for (let i = 0; i < 40; i++) repeated.push(items[i % items.length]);
+    line.innerHTML = repeated.map(item => `
+        <div class="roulette-item">
+            <img src="${item.image}" alt="${item.name}">
+        </div>
+    `).join('');
+}
+
+function pickDrop(chest) {
     const roll = Math.random() * 100;
     let acc = 0;
-    let dropped = null;
     for (const drop of chest.drops) {
         acc += drop.chance;
-        if (roll < acc) {
-            dropped = ITEMS.find(i => i.id === drop.itemId);
-            break;
-        }
-    }
-
-    if (dropped) {
-        state.inventory.push({ ...dropped });
-        if (!state.collected.includes(dropped.id)) {
-            state.collected.push(dropped.id);
-        }
-        save();
-        alert('🎉 Выпал предмет: ' + dropped.name + '!');
-        if (document.getElementById('inventoryModal').classList.contains('open')) {
-            renderInventory();
-            renderCollection();
-        }
-    } else {
-        save();
-        alert('Пусто...');
-    }
-}
-
-load();
-switchPage('market');
-</script>
-</body>
-</html>
+       
