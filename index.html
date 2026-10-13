@@ -1,562 +1,268 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Скупщик</title>
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { font-family: Arial, sans-serif; background: #1e1e1e; color: white; min-height: 100vh; padding-bottom: 100px; user-select: none; }
-.topbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: #2b2b2b; position: sticky; top: 0; z-index: 50; }
-.btn-round { width: 44px; height: 44px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; font-size: 20px; color: #1e1e1e; }
-.balance { background: white; color: #1e1e1e; padding: 8px 15px; border-radius: 20px; font-weight: bold; display: flex; align-items: center; gap: 6px; }
-.balance-plus { color: #00c853; font-size: 22px; font-weight: bold; }
-.content { padding: 15px; }
-.empty { color: #666; padding: 40px 0; font-size: 16px; text-align: center; }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Скупщик: игра про торговлю</title>
+    <style>
+      :root {
+        --primary: #3b82f6;
+        --dark: #1f2937;
+        --light: #f3f4f6;
+        --bg-card: #ffffff;
+        --danger: #ef4444;
+        --success: #10b981;
+      }
 
-.bottombar { position: fixed; bottom: 0; left: 0; right: 0; background: #2b2b2b; display: flex; justify-content: space-around; align-items: center; padding: 10px 0 15px; z-index: 50; }
-.bottom-btn { background: none; border: none; color: #888; font-size: 24px; cursor: pointer; padding: 5px 10px; position: relative; }
-.bottom-btn.active { color: #00aaff; }
-.bottom-btn.main { background: white; color: #1e1e1e; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: -20px; font-size: 24px; }
-.chat-badge { position: absolute; top: 0; right: 2px; background: #ff1744; color: white; border-radius: 50%; min-width: 18px; height: 18px; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
 
-.modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 100; justify-content: center; align-items: center; padding: 15px; }
-.modal.open { display: flex; }
-.modal-content { background: #2b2b2b; border-radius: 20px; padding: 20px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
-.modal-title { font-size: 20px; font-weight: bold; margin-bottom: 18px; text-align: center; }
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: var(--dark);
+        background-color: var(--light);
+        line-height: 1.6;
+      }
 
-.setting-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #3a3a3a; }
-.setting-label { font-size: 16px; }
-.theme-toggle { display: flex; background: #1e1e1e; border-radius: 20px; padding: 3px; }
-.theme-btn { padding: 8px 16px; border: none; background: none; color: #888; border-radius: 17px; cursor: pointer; font-weight: bold; }
-.theme-btn.active { background: #00aaff; color: white; }
-input[type=range] { -webkit-appearance: none; width: 140px; height: 6px; background: #1e1e1e; border-radius: 3px; outline: none; }
-input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; background: #00aaff; border-radius: 50%; cursor: pointer; }
+      header {
+        background: var(--bg-card);
+        padding: 1rem 2rem;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      }
 
-.big-btn { width: 100%; padding: 16px; background: #00aaff; color: white; border: none; border-radius: 15px; font-size: 17px; font-weight: bold; cursor: pointer; margin-top: 15px; }
-.green-btn { background: #00c853; }
+      nav a {
+        margin-right: 1.5rem;
+        text-decoration: none;
+        color: var(--dark);
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+      nav a:hover { color: var(--primary); }
 
-.tabs { display: flex; gap: 10px; margin-bottom: 15px; }
-.tab { flex: 1; padding: 12px; border-radius: 25px; background: #2b2b2b; color: #888; font-weight: bold; cursor: pointer; border: none; font-size: 14px; }
-.tab.active { background: #00aaff; color: white; }
+      main { padding: 2rem; max-width: 1200px; margin: 0 auto; }
 
-.market-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.market-card { background: white; border-radius: 18px; padding: 12px; text-align: center; box-shadow: 0 0 12px rgba(255,140,26,0.6); border: 2px solid #ff8c1a; }
-.market-card img { width: 100%; height: 110px; object-fit: contain; margin-bottom: 8px; }
-.market-card .name { color: #1e1e1e; font-weight: bold; font-size: 15px; margin-bottom: 8px; }
-.market-card .price { color: #1e1e1e; font-weight: bold; font-size: 18px; }
+      .hero {
+        text-align: center;
+        padding: 3rem 1rem;
+        background: var(--bg-card);
+        border-radius: 12px;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      }
+      .hero h1 { font-size: 2.75rem; margin-bottom: 0.5rem; color: var(--dark); }
+      .hero p { font-size: 1.125rem; color: #555; }
 
-.inv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.inv-card { background: white; border-radius: 18px; padding: 12px; position: relative; box-shadow: 0 0 12px rgba(255,140,26,0.6); border: 2px solid #ff8c1a; }
-.inv-card .badge { position: absolute; top: -8px; right: -8px; background: #00c853; color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; z-index: 2; }
-.inv-card img { width: 100%; height: 100px; object-fit: contain; margin-bottom: 8px; }
-.inv-card .inv-name { color: #1e1e1e; font-weight: bold; font-size: 16px; margin-bottom: 10px; }
-.inv-card .btn-sell { width: 100%; background: #00aaff; color: white; border: none; padding: 10px; border-radius: 12px; font-weight: bold; font-size: 13px; cursor: pointer; margin-bottom: 6px; }
-.inv-card .btn-fast { width: 100%; background: #ff1744; color: white; border: none; padding: 10px; border-radius: 12px; font-weight: bold; font-size: 13px; cursor: pointer; }
+      #game-container {
+        max-width: 960px;
+        margin: 0 auto;
+        background: var(--bg-card);
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      }
 
-.collection-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 0 15px; }
-.collection-header h2 { font-size: 20px; font-weight: bold; }
-.collection-header .progress { color: #ff8c1a; font-size: 20px; font-weight: bold; }
-.collection-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.collection-card { background: #3a3a3a; border-radius: 15px; overflow: hidden; position: relative; cursor: pointer; }
-.collection-card .rarity { position: absolute; top: 10px; left: 10px; background: #888; color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; z-index: 2; }
-.collection-card .img-wrap { background: #2b2b2b; height: 120px; display: flex; align-items: center; justify-content: center; position: relative; }
-.collection-card .img-wrap img { max-width: 70%; max-height: 70%; object-fit: contain; filter: brightness(0.4); }
-.collection-card .not-collected { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-weight: bold; font-size: 13px; text-align: center; z-index: 2; }
-.collection-card .bottom { background: #b0b0b0; color: #1e1e1e; padding: 12px; font-weight: bold; font-size: 14px; }
-.collection-card.collected .img-wrap img { filter: none; }
-.collection-card.collected .bottom { background: #ff8c1a; color: white; }
-.collection-card.collected .not-collected { display: none; }
-.collection-card.collected .rarity { background: #00aaff; }
+      #ui-panel {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+      }
 
-.sell-price { background: white; color: #1e1e1e; font-size: 26px; font-weight: bold; text-align: center; padding: 16px; border-radius: 50px; margin: 15px 0; }
-.slider-wrap { margin: 20px 0; }
-.slider-labels { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 8px; }
-.slider-labels .green { color: #00c853; }
-.slider-labels .red { color: #ff1744; }
-.slider-input { -webkit-appearance: none; width: 100%; height: 8px; border-radius: 4px; background: linear-gradient(to right, #00c853 0%, #00c853 20%, #00aaff 30%, #00aaff 70%, #ff1744 80%, #ff1744 100%); outline: none; }
-.slider-input::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; background: white; border: 3px solid #ff1744; border-radius: 50%; cursor: pointer; }
-.price-caption { text-align: center; font-size: 16px; font-weight: bold; margin-top: 10px; }
-.price-caption.down { color: #00c853; }
-.price-caption.up { color: #ff1744; }
-.price-caption.normal { color: #00aaff; }
+      #balance-display {
+        font-size: 1.25rem;
+        font-weight: bold;
+        color: var(--dark);
+      }
 
-.chests-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.chest-card { background: white; border-radius: 18px; padding: 15px; text-align: center; box-shadow: 0 0 12px rgba(255,140,26,0.6); border: 2px solid #ff8c1a; cursor: pointer; }
-.chest-card img { width: 100%; height: 110px; object-fit: contain; margin-bottom: 8px; }
-.chest-card .name { color: #1e1e1e; font-weight: bold; font-size: 15px; margin-bottom: 6px; }
-.chest-card .price { color: #00c853; font-weight: bold; font-size: 18px; }
+      #next-day-btn {
+        padding: 0.6rem 1.2rem;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background 0.2s;
+      }
+      #next-day-btn:hover { background: #2563eb; }
 
-.roulette-wrap { background: #1e1e1e; border-radius: 15px; padding: 15px 0; margin: 15px 0; overflow: hidden; position: relative; }
-.roulette-pointer { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 18px solid #ff1744; z-index: 5; }
-.roulette-pointer-bottom { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-bottom: 18px solid #ff1744; z-index: 5; }
-.roulette-line { display: flex; gap: 10px; }
-.roulette-item { flex: 0 0 90px; height: 90px; background: #2b2b2b; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 2px solid #3a3a3a; }
-.roulette-item img { max-width: 70%; max-height: 70%; object-fit: contain; }
+      table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+      th, td { border: 1px solid #e5e7eb; padding: 0.75rem; text-align: left; }
+      th { background: #f8fafc; color: #4b5563; font-weight: 600; }
+      tr:hover { background: #f9fafb; }
 
-.result-box { text-align: center; padding: 15px; }
-.result-box img { width: 120px; height: 120px; object-fit: contain; margin-bottom: 10px; }
-.result-box .result-name { font-size: 20px; font-weight: bold; margin-bottom: 5px; }
-.result-box .result-rarity { font-size: 14px; color: #ff8c1a; font-weight: bold; }
+      .btn-action {
+        padding: 0.4rem 0.8rem;
+        cursor: pointer;
+        border: 1px solid #9ca3af;
+        background: white;
+        border-radius: 4px;
+        font-size: 0.9rem;
+      }
+      .btn-action:hover { background: #f3f4f6; }
+      .btn-buy { color: var(--success); }
+      .btn-sell { color: var(--danger); }
 
-.chat-list { display: flex; flex-direction: column; gap: 10px; max-height: 60vh; overflow-y: auto; padding: 5px; }
-.chat-msg { display: flex; flex-direction: column; max-width: 85%; }
-.chat-msg.bot { align-self: flex-start; }
-.chat-msg.me { align-self: flex-end; }
-.chat-msg .who { font-size: 11px; color: #888; margin-bottom: 3px; padding: 0 5px; }
-.chat-msg .bubble { background: #3a3a3a; padding: 10px 14px; border-radius: 15px; font-size: 14px; line-height: 1.4; word-break: break-word; }
-.chat-msg.me .bubble { background: #00aaff; }
-.chat-msg .reply-btn { margin-top: 6px; background: #00c853; color: white; border: none; padding: 8px 12px; border-radius: 10px; font-weight: bold; font-size: 12px; cursor: pointer; align-self: flex-start; }
-.chat-empty { text-align: center; color: #666; padding: 40px 10px; }
+      footer {
+        text-align: center;
+        padding: 2rem;
+        color: #6b7280;
+        margin-top: 2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="#">Главная</a>
+        <a href="#game">Игра</a>
+        <a href="#about">О проекте</a>
+      </nav>
+    </header>
 
-body.light { background: #f0f0f0; color: #1e1e1e; }
-body.light .topbar, body.light .bottombar { background: #ffffff; }
-body.light .btn-round { background: #1e1e1e; color: white; }
-body.light .balance { background: #1e1e1e; color: white; }
-body.light .tab { background: #e0e0e0; color: #666; }
-body.light .modal-content { background: #ffffff; color: #1e1e1e; }
-body.light .setting-row { border-bottom-color: #e0e0e0; }
-body.light .theme-toggle { background: #e0e0e0; }
-body.light .roulette-wrap { background: #e0e0e0; }
-body.light .roulette-item { background: #ffffff; border-color: #cccccc; }
-body.light .chat-msg .bubble { background: #e0e0e0; }
-body.light .chat-msg.me .bubble { background: #00aaff; color: white; }
-</style>
-</head>
-<body>
+    <main>
+      <section id="home" class="hero">
+        <h1>Скупщик</h1>
+        <p>Покупай дешевле, продавай дороже. Следи за рынком и наращивай капитал!</p>
+      </section>
 
-<div class="topbar">
-    <button class="btn-round" onclick="openModal('settingsModal')">⚙️</button>
-    <div class="balance"><span class="balance-plus">+</span> <span id="balanceValue">0</span> ₽</div>
-</div>
+      <section id="game">
+        <div id="game-container">
+          <h2 style="margin-bottom:1rem;">Игровой процесс</h2>
+          
+          <div id="ui-panel">
+            <div id="balance-display">Баланс: 1 000 ₽</div>
+            <button id="next-day-btn">Следующий день (обновить цены)</button>
+          </div>
 
-<div class="content">
-    <div id="mainContent"></div>
-</div>
-
-<div class="bottombar">
-    <button class="bottom-btn" id="btnMarket" onclick="switchPage('market')">🛒</button>
-    <button class="bottom-btn" id="btnChest" onclick="openChests()">🎁</button>
-    <button class="bottom-btn" id="btnHammer" onclick="switchPage('sales')">🔨</button>
-    <button class="bottom-btn main" id="btnInv" onclick="openInventory()">💼</button>
-    <button class="bottom-btn" id="btnChat" onclick="openChat()">💬<span class="chat-badge" id="chatBadge" style="display:none;">0</span></button>
-    <button class="bottom-btn" id="btnShop" onclick="alert('Магазин в разработке')">🏪</button>
-    <button class="bottom-btn" id="btnIndex" onclick="openIndex()">⚡</button>
-</div>
-
-<div class="modal" id="settingsModal">
-    <div class="modal-content">
-        <div class="modal-title">⚙️ Настройки</div>
-        <div class="setting-row">
-            <div class="setting-label">Тема</div>
-            <div class="theme-toggle">
-                <button class="theme-btn" id="themeLight" onclick="setTheme('light')">Светлая</button>
-                <button class="theme-btn active" id="themeDark" onclick="setTheme('dark')">Тёмная</button>
-            </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Предмет</th>
+                <th>Цена покупки</th>
+                <th>Цена продажи</th>
+                <th>На рынке</th>
+                <th>У тебя</th>
+                <th>Действия</th>
+              </tr>
+            </thead>
+            <tbody id="items-body"></tbody>
+          </table>
         </div>
-        <div class="setting-row">
-            <div class="setting-label">Громкость SFX</div>
-            <input type="range" min="0" max="100" value="70" id="sfxVolume">
-        </div>
-        <div class="setting-row">
-            <div class="setting-label">Громкость музыки</div>
-            <input type="range" min="0" max="100" value="50" id="musicVolume">
-        </div>
-        <button class="big-btn" onclick="closeModal('settingsModal')">Закрыть</button>
-    </div>
-</div>
+      </section>
 
-<div class="modal" id="inventoryModal">
-    <div class="modal-content">
-        <div class="tabs">
-            <button class="tab active" id="tabInv" onclick="switchInvTab('inv')">ИНВЕНТАРЬ</button>
-            <button class="tab" id="tabCol" onclick="switchInvTab('col')">КОЛЛЕКЦИЯ</button>
-        </div>
-        <div id="invView"></div>
-        <div id="colView" style="display:none;">
-            <div class="collection-header">
-                <h2>Осенняя коллекция</h2>
-                <div class="progress" id="collectionProgress">0/1</div>
-            </div>
-            <div class="collection-grid" id="collectionGrid"></div>
-        </div>
-        <button class="big-btn" onclick="closeModal('inventoryModal')">Закрыть</button>
-    </div>
-</div>
+      <section id="about" style="margin-top:2rem;">
+        <h2>О проекте</h2>
+        <p>Это простая браузерная игра-симулятор скупщика. Всё работает прямо в браузере без установки.</p>
+        <p>Код полностью открыт — можно менять цены, добавлять товары и выкладывать на GitHub.</p>
+      </section>
+    </main>
 
-<div class="modal" id="sellModal">
-    <div class="modal-content">
-        <div class="modal-title" id="sellCaption">Твоя цена рыночная</div>
-        <div class="sell-price" id="sellPrice">0 ₽</div>
-        <div class="slider-wrap">
-            <div class="slider-labels">
-                <span class="green" id="minPriceLabel">50 ₽</span>
-                <span class="red" id="maxPriceLabel">125 ₽</span>
-            </div>
-            <input type="range" class="slider-input" id="priceSlider" min="50" max="125" value="87">
-        </div>
-        <div class="price-caption" id="priceCaption">Твоя цена рыночная</div>
-        <button class="big-btn" onclick="confirmSell()">Выставить на продажу</button>
-    </div>
-</div>
+    <footer>
+      <p>&copy; 2024 Скупщик. Все права защищены.</p>
+    </footer>
 
-<div class="modal" id="chestOpenModal">
-    <div class="modal-content">
-        <div class="modal-title" id="chestOpenTitle">Открытие ящика</div>
-        <div class="roulette-wrap">
-            <div class="roulette-pointer"></div>
-            <div class="roulette-line" id="rouletteLine"></div>
-            <div class="roulette-pointer-bottom"></div>
-        </div>
-        <button class="big-btn green-btn" id="chestOpenBtn" onclick="startChestSpin()">Открыть за 100 ₽</button>
-        <button class="big-btn" onclick="closeModal('chestOpenModal')">Закрыть</button>
-    </div>
-</div>
+    <script>
+      // Данные игры
+      const items = [
+        { id: 'phone', name: 'Старый смартфон', baseBuy: 300, baseSell: 500, stock: 5, owned: 0 },
+        { id: 'laptop', name: 'Ноутбук б/у', baseBuy: 2000, baseSell: 3500, stock: 3, owned: 0 },
+        { id: 'watch', name: 'Часы механические', baseBuy: 400, baseSell: 700, stock: 6, owned: 0 },
+        { id: 'headphones', name: 'Наушники', baseBuy: 250, baseSell: 450, stock: 8, owned: 0 },
+        { id: 'camera', name: 'Фотоаппарат', baseBuy: 1200, baseSell: 2200, stock: 2, owned: 0 },
+      ];
 
-<div class="modal" id="resultModal">
-    <div class="modal-content">
-        <div class="modal-title">🎉 Твой предмет</div>
-        <div class="result-box" id="resultBox"></div>
-        <button class="big-btn" onclick="closeModal('resultModal')">Забрать</button>
-    </div>
-</div>
+      let balance = 1000;
+      
+      // Элементы DOM
+      const balanceEl = document.getElementById('balance-display');
+      const bodyEl = document.getElementById('items-body');
+      const nextDayBtn = document.getElementById('next-day-btn');
 
-<div class="modal" id="chatModal">
-    <div class="modal-content">
-        <div class="modal-title">💬 Чат покупателей</div>
-        <div class="chat-list" id="chatList"></div>
-        <button class="big-btn" onclick="closeModal('chatModal')">Закрыть</button>
-    </div>
-</div>
+      // Функция отрисовки таблицы
+      function render() {
+        balanceEl.textContent = `Баланс: ${balance.toLocaleString()} ₽`;
+        bodyEl.innerHTML = '';
 
-<script>
-const ITEMS = [
-    { id: 'pencil', name: 'Карандаш', image: 'https://cdn-icons-png.flaticon.com/512/1073/1073475.png', minPrice: 10, maxPrice: 250, marketPrice: 100, reward: 250, rarity: 'Обычный' },
-    { id: 'pen', name: 'Ручка', image: 'https://cdn-icons-png.flaticon.com/512/1250/1250615.png', minPrice: 15, maxPrice: 200, marketPrice: 80, reward: 200, rarity: 'Обычный' },
-    { id: 'eraser', name: 'Ластик', image: 'https://cdn-icons-png.flaticon.com/512/2933/2933167.png', minPrice: 20, maxPrice: 180, marketPrice: 70, reward: 180, rarity: 'Обычный' },
-    { id: 'ruler', name: 'Линейка', image: 'https://cdn-icons-png.flaticon.com/512/2942/2942801.png', minPrice: 25, maxPrice: 300, marketPrice: 120, reward: 300, rarity: 'Редкий' },
-    { id: 'notebook', name: 'Тетрадь', image: 'https://cdn-icons-png.flaticon.com/512/2232/2232688.png', minPrice: 30, maxPrice: 400, marketPrice: 150, reward: 400, rarity: 'Редкий' }
-];
+        items.forEach(item => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><strong>${item.name}</strong></td>
+            <td>${item.buyPrice.toLocaleString()} ₽</td>
+            <td style="color:var(--success)">${item.sellPrice.toLocaleString()} ₽</td>
+            <td>${item.stock}</td>
+            <td>${item.owned}</td>
+            <td>
+              <button class="btn-action btn-buy" data-type="buy" data-id="${item.id}">Купить</button>
+              <button class="btn-action btn-sell" data-type="sell" data-id="${item.id}">Продать</button>
+            </td>
+          `;
+          bodyEl.appendChild(tr);
+        });
+      }
 
-const CHESTS = [
-    {
-        id: 'cardboard',
-        name: 'Картонный ящик',
-        price: 100,
-        image: 'https://cdn-icons-png.flaticon.com/512/679/679720.png',
-        drops: [
-            { itemId: 'pencil', chance: 50 },
-            { itemId: 'pen', chance: 25 },
-            { itemId: 'eraser', chance: 15 },
-            { itemId: 'ruler', chance: 7 },
-            { itemId: 'notebook', chance: 3 }
-        ]
-    }
-];
+      // Обновление цен (случайные колебания)
+      function updatePrices() {
+        items.forEach(i => {
+          // Цены меняются на ±20% каждый день
+          const factor = 0.8 + Math.random() * 0.4;
+          i.buyPrice = Math.round(i.baseBuy * factor);
+          i.sellPrice = Math.round(i.baseSell * factor);
+        });
+        render();
+      }
 
-let state = {
-    balance: 1000,
-    inventory: [],
-    mySales: [],
-    collected: [],
-    marketItems: [],
-    marketResetTime: 0,
-    theme: 'dark',
-    sfxVolume: 70,
-    musicVolume: 50,
-    chat: [],
-    chatBadge: 0
-};
+      // Инициализация начальных цен
+      items.forEach(i => {
+        i.buyPrice = i.baseBuy;
+        i.sellPrice = i.baseSell;
+      });
 
-let currentChest = null;
-let isSpinning = false;
-let botTimers = [];
+      // Обработчик кнопки "Следующий день"
+      nextDayBtn.addEventListener('click', () => {
+        updatePrices();
+      });
 
-function save() { localStorage.setItem('skupchik_save', JSON.stringify(state)); }
+      // Обработчики покупок и продаж
+      bodyEl.addEventListener('click', e => {
+        const btn = e.target.closest('.btn-action');
+        if (!btn) return;
 
-function load() {
-    const raw = localStorage.getItem('skupchik_save');
-    if (raw) {
-        try { state = { ...state, ...JSON.parse(raw) }; } catch (e) {}
-    }
-    updateBalance();
-    setTheme(state.theme || 'dark');
-    document.getElementById('sfxVolume').value = state.sfxVolume;
-    document.getElementById('musicVolume').value = state.musicVolume;
-    updateChatBadge();
-}
+        const id = btn.dataset.id;
+        const type = btn.dataset.type;
+        const item = items.find(i => i.id === id);
+        if (!item) return;
 
-function updateBalance() { document.getElementById('balanceValue').textContent = state.balance; }
+        if (type === 'buy') {
+          if (balance >= item.buyPrice && item.stock > 0) {
+            balance -= item.buyPrice;
+            item.stock--;
+            item.owned++;
+          } else {
+            let msg = 'Недостаточно денег';
+            if (item.stock <= 0) msg = 'Товара нет в наличии';
+            alert(msg);
+          }
+        } else if (type === 'sell') {
+          if (item.owned > 0) {
+            balance += item.sellPrice;
+            item.stock++;
+            item.owned--;
+          } else {
+            alert('У вас нет этого предмета для продажи');
+          }
+        }
+        render();
+      });
 
-function setTheme(theme) {
-    state.theme = theme;
-    const body = document.body;
-    document.getElementById('themeLight').classList.remove('active');
-    document.getElementById('themeDark').classList.remove('active');
-    if (theme === 'light') {
-        body.classList.add('light');
-        document.getElementById('themeLight').classList.add('active');
-    } else {
-        body.classList.remove('light');
-        document.getElementById('themeDark').classList.add('active');
-    }
-    save();
-}
-
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-let currentPage = 'market';
-function switchPage(page) {
-    currentPage = page;
-    document.querySelectorAll('.bottom-btn').forEach(b => b.classList.remove('active'));
-    if (page === 'market') {
-        document.getElementById('btnMarket').classList.add('active');
-        renderMarket();
-    } else if (page === 'sales') {
-        document.getElementById('btnHammer').classList.add('active');
-        renderSales();
-    }
-}
-
-function renderMarket() {
-    const el = document.getElementById('mainContent');
-    const now = Date.now();
-    if (now > state.marketResetTime || state.marketItems.length === 0) generateMarket();
-    if (state.marketItems.length === 0) {
-        el.innerHTML = '<div class="empty">Товары скоро появятся...</div>';
-        return;
-    }
-    el.innerHTML = `<div class="market-grid">${state.marketItems.map(item => `
-        <div class="market-card">
-            <img src="${item.image}" alt="${item.name}">
-            <div class="name">${item.name}</div>
-            <div class="price">${item.marketPrice} ₽</div>
-        </div>
-    `).join('')}</div>`;
-}
-
-function generateMarket() {
-    state.marketItems = ITEMS.map(item => {
-        const price = Math.floor(Math.random() * (item.maxPrice - item.minPrice + 1)) + item.minPrice;
-        return { ...item, marketPrice: price };
-    });
-    state.marketResetTime = Date.now() + 15 * 60 * 1000;
-    save();
-}
-
-function renderSales() {
-    const el = document.getElementById('mainContent');
-    if (state.mySales.length === 0) {
-        el.innerHTML = '<div class="empty">У вас пока нет продаж.</div>';
-        return;
-    }
-    el.innerHTML = state.mySales.map((sale, i) => `
-        <div style="background:#2b2b2b; border-radius:15px; padding:15px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-            <div>
-                <div style="font-weight:bold;">${sale.name}</div>
-                <div style="color:#00aaff; margin-top:5px;">${sale.price} ₽</div>
-                ${sale.sold ? '<div style="color:#00c853; margin-top:3px; font-weight:bold;">ПРОДАНО</div>' : ''}
-            </div>
-            ${sale.sold ? '' : `<button onclick="removeSale(${i})" style="background:#ff1744; color:white; border:none; padding:8px 12px; border-radius:10px; cursor:pointer;">Убрать</button>`}
-        </div>
-    `).join('');
-}
-
-function removeSale(index) {
-    state.mySales.splice(index, 1);
-    save();
-    renderSales();
-    restartBotTimers();
-}
-
-function openInventory() {
-    switchInvTab('inv');
-    renderInventory();
-    renderCollection();
-    openModal('inventoryModal');
-}
-
-function openIndex() {
-    switchInvTab('col');
-    renderInventory();
-    renderCollection();
-    openModal('inventoryModal');
-}
-
-function switchInvTab(tab) {
-    const tabInv = document.getElementById('tabInv');
-    const tabCol = document.getElementById('tabCol');
-    const invView = document.getElementById('invView');
-    const colView = document.getElementById('colView');
-
-    tabInv.classList.remove('active');
-    tabCol.classList.remove('active');
-
-    if (tab === 'inv') {
-        tabInv.classList.add('active');
-        invView.style.display = 'block';
-        colView.style.display = 'none';
-    } else {
-        tabCol.classList.add('active');
-        invView.style.display = 'none';
-        colView.style.display = 'block';
-    }
-}
-
-function renderInventory() {
-    const view = document.getElementById('invView');
-    if (state.inventory.length === 0) {
-        view.className = '';
-        view.innerHTML = '<div class="empty">Инвентарь пуст. Открой ящик!</div>';
-        return;
-    }
-    view.className = 'inv-grid';
-    view.innerHTML = state.inventory.map((item, i) => `
-        <div class="inv-card">
-            <div class="badge">НОВЫЙ</div>
-            <img src="${item.image}" alt="${item.name}">
-            <div class="inv-name">${item.name}</div>
-            <button class="btn-sell" onclick="openSell(${i})">НА ПРОДАЖУ</button>
-            <button class="btn-fast" onclick="fastSell(${i})">БЫСТРАЯ ПРОДАЖА</button>
-        </div>
-    `).join('');
-}
-
-function renderCollection() {
-    const grid = document.getElementById('collectionGrid');
-    const progressEl = document.getElementById('collectionProgress');
-    if (!grid) return;
-    progressEl.textContent = state.collected.length + '/' + ITEMS.length;
-    grid.innerHTML = ITEMS.map(item => {
-        const isCollected = state.collected.includes(item.id);
-        return `
-            <div class="collection-card ${isCollected ? 'collected' : ''}">
-                <div class="rarity">${item.rarity || 'Обычный'}</div>
-                <div class="img-wrap">
-                    <img src="${item.image}" alt="${item.name}">
-                    <div class="not-collected">НЕ СОБРАНО</div>
-                </div>
-                <div class="bottom">${item.name}</div>
-            </div>
-        `;
-    }).join('');
-}
-
-function openSell(index) {
-    const item = state.inventory[index];
-    if (!item) return;
-    const slider = document.getElementById('priceSlider');
-    slider.min = item.minPrice;
-    slider.max = item.maxPrice;
-    slider.value = item.marketPrice;
-    slider.dataset.index = index;
-    document.getElementById('minPriceLabel').textContent = item.minPrice + ' ₽';
-    document.getElementById('maxPriceLabel').textContent = item.maxPrice + ' ₽';
-    updatePriceCaption();
-    closeModal('inventoryModal');
-    openModal('sellModal');
-}
-
-function fastSell(index) {
-    const item = state.inventory[index];
-    if (!item) return;
-    const price = Math.round((item.minPrice + item.maxPrice) / 2);
-    state.balance += price;
-    state.inventory.splice(index, 1);
-    updateBalance();
-    save();
-    renderInventory();
-    alert('Быстрая продажа: +' + price + ' ₽');
-}
-
-function updatePriceCaption() {
-    const slider = document.getElementById('priceSlider');
-    const index = parseInt(slider.dataset.index);
-    const item = state.inventory[index];
-    if (!item) return;
-    const val = parseInt(slider.value);
-    const caption = document.getElementById('sellCaption');
-    const priceCaption = document.getElementById('priceCaption');
-    document.getElementById('sellPrice').textContent = val + ' ₽';
-    const range = item.maxPrice - item.minPrice;
-    const pos = range === 0 ? 0.5 : (val - item.minPrice) / range;
-    if (pos < 0.35) {
-        caption.textContent = 'Твоя цена ниже рынка';
-        priceCaption.className = 'price-caption down';
-        priceCaption.textContent = 'Твоя цена ниже рынка';
-    } else if (pos > 0.65) {
-        caption.textContent = 'Твоя цена выше рынка';
-        priceCaption.className = 'price-caption up';
-        priceCaption.textContent = 'Твоя цена выше рынка';
-    } else {
-        caption.textContent = 'Твоя цена рыночная';
-        priceCaption.className = 'price-caption normal';
-        priceCaption.textContent = 'Твоя цена рыночная';
-    }
-}
-
-document.getElementById('priceSlider').addEventListener('input', updatePriceCaption);
-
-function confirmSell() {
-    const slider = document.getElementById('priceSlider');
-    const index = parseInt(slider.dataset.index);
-    const item = state.inventory[index];
-    if (!item) return;
-    const price = parseInt(slider.value);
-    state.mySales.push({ name: item.name, price: price, itemId: item.id, sold: false });
-    state.inventory.splice(index, 1);
-    save();
-    closeModal('sellModal');
-    renderInventory();
-    alert('Товар выставлен на продажу за ' + price + ' ₽');
-    restartBotTimers();
-}
-
-function openChests() {
-    document.querySelectorAll('.bottom-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('btnChest').classList.add('active');
-    const el = document.getElementById('mainContent');
-    el.innerHTML = `<div class="chests-grid">${CHESTS.map(chest => `
-        <div class="chest-card" onclick="openChestMenu('${chest.id}')">
-            <img src="${chest.image}" alt="${chest.name}">
-            <div class="name">${chest.name}</div>
-            <div class="price">${chest.price} ₽</div>
-        </div>
-    `).join('')}</div>`;
-}
-
-function openChestMenu(chestId) {
-    const chest = CHESTS.find(c => c.id === chestId);
-    if (!chest) return;
-    currentChest = chest;
-    isSpinning = false;
-    document.getElementById('chestOpenTitle').textContent = chest.name;
-    const btn = document.getElementById('chestOpenBtn');
-    btn.textContent = 'Открыть за ' + chest.price + ' ₽';
-    btn.disabled = false;
-    btn.style.opacity = '1';
-    buildRoulette(chest);
-    openModal('chestOpenModal');
-}
-
-function buildRoulette(chest) {
-    const line = document.getElementById('rouletteLine');
-    line.style.transition = 'none';
-    line.style.transform = 'translateX(0px)';
-    const items = chest.drops.map(d => ITEMS.find(i => i.id === d.itemId)).filter(Boolean);
-    const repeated = [];
-    for (let i = 0; i < 40; i++) repeated.push(items[i % items.length]);
-    line.innerHTML = repeated.map(item => `
-        <div class="roulette-item">
-            <img src="${item.image}" alt="${item.name}">
-        </div>
-    `).join('');
-}
-
-function pickDrop(chest) {
-    const roll = Math.random() * 100;
-    let acc = 0;
-    for (const drop of chest.drops) {
-        acc += drop.chance;
-       
+      // Первый рендер
+      render();
+    </script>
+  </body>
+</html>
