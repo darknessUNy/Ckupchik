@@ -1,568 +1,568 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Скупщик PRO: Трейдинг</title>
-    <style>
-      :root {
-        --bg-color: #f0f2f5;
-        --panel-bg: #ffffff;
-        --text-main: #1e293b;
-        --text-muted: #64748b;
-        --accent: #3b82f6;
-        --success: #10b981;
-        --danger: #ef4444;
-        --border: #e2e8f0;
-        --stripe-bg: rgba(59, 130, 246, 0.08); 
-      }
-
-      body { 
-        background-color: var(--bg-color); 
-        background-image: 
-          linear-gradient(45deg, var(--stripe-bg) 25%, transparent 25%), 
-          linear-gradient(-45deg, var(--stripe-bg) 25%, transparent 25%);
-        background-size: 40px 40px;
-        color: var(--text-main); 
-        margin: 0;
-      }
-      
-      body.dark-mode {
-        --bg-color: #1a1b26;
-        --panel-bg: #16213e;
-        --text-main: #c0caf5;
-        --text-muted: #8f94cb;
-        --border: #333;
-        --stripe-bg: rgba(255, 255, 255, 0.05);
-        background-image: 
-          linear-gradient(45deg, var(--stripe-bg) 25%, transparent 25%), 
-          linear-gradient(-45deg, var(--stripe-bg) 25%, transparent 25%);
-      }
-
-      * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-      
-      header {
-        display: flex; justify-content: space-between; align-items: center;
-        padding: 1rem 2rem; background: var(--panel-bg);
-        border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-      }
-      .controls-group button {
-        background: transparent; border: 1px solid var(--border);
-        color: var(--text-main); padding: 0.5rem 1rem; border-radius: 6px;
-        cursor: pointer; margin-right: 0.5rem; transition: all 0.2s;
-        display: flex; align-items: center; gap: 0.5rem;
-      }
-      .controls-group button:hover { background: var(--accent); color: white; border-color: var(--accent); }
-      .btn-active { background: var(--success) !important; color: white !important; }
-
-      .game-layout { display: grid; grid-template-columns: 350px 1fr; gap: 20px; padding: 2rem; max-width: 1400px; margin: 0 auto; }
-      
-      .sidebar-panel {
-        background: var(--panel-bg); border-radius: 12px; padding: 1.5rem;
-        height: calc(100vh - 120px); overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      }
-      .item-card {
-        border: 1px solid var(--border); border-radius: 8px;
-        padding: 1rem; margin-bottom: 1rem; background: #fff;
-        cursor: pointer; transition: transform 0.1s, box-shadow 0.2s;
-      }
-      .item-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-      .item-card.selected { border-color: var(--accent); background: rgba(59, 130, 246, 0.05); }
-      .item-info h3 { color: var(--text-main); margin-bottom: 0.5rem; }
-      .item-price { font-weight: bold; color: var(--text-muted); margin-bottom: 0.5rem; display: block; }
-      .item-stats { font-size: 0.85rem; color: var(--text-muted); }
-
-      .main-panel { display: flex; flex-direction: column; gap: 20px; }
-      
-      .graph-container {
-        background: var(--panel-bg); border-radius: 12px;
-        padding: 1.5rem; min-height: 280px; position: relative;
-        border: 1px solid var(--border);
-        overflow: hidden;
-      }
-      .chart-placeholder { text-align: center; padding: 50px; color: var(--text-muted); font-style: italic; }
-
-      .data-point {
-        position: absolute;
-        width: 14px;
-        height: 14px;
-        background: var(--accent);
-        border: 2px solid white;
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-        cursor: pointer;
-        z-index: 10;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        transition: transform 0.2s, background 0.2s;
-      }
-      .data-point:hover {
-        transform: translate(-50%, -50%) scale(1.4);
-        background: var(--success);
-      }
-
-      .tooltip {
-        position: absolute;
-        top: -40px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(0, 0, 0, 0.8);
-        color: white;
-        padding: 6px 10px;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        white-space: nowrap;
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.2s;
-        pointer-events: none;
-        z-index: 20;
-      }
-      .data-point:hover .tooltip {
-        opacity: 1;
-        visibility: visible;
-      }
-
-      .actions-panel {
-        background: var(--panel-bg); border-radius: 12px;
-        padding: 1.5rem; border: 1px solid var(--border);
-      }
-      .balance-display { font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: var(--text-main); }
-      .action-buttons { display: flex; gap: 1rem; flex-wrap: wrap; }
-      .btn-big {
-        padding: 0.75rem 1.5rem; font-size: 1rem; border-radius: 8px;
-        cursor: pointer; border: none; font-weight: 600;
-      }
-      .btn-buy { background: var(--success); color: white; }
-      .btn-sell { background: var(--danger); color: white; }
-      .btn-offer { background: var(--accent); color: white; }
-      .btn-big:hover { opacity: 0.9; transform: scale(1.02); }
-      input[type="number"] {
-        padding: 0.5rem; border: 1px solid var(--border);
-        border-radius: 6px; width: 150px; text-align: right; color: var(--text-main);
-      }
-    </style>
-  </head>
-  <body>
-    <header>
-      <div class="logo" style="font-weight:bold; font-size:1.2rem;">СКУПЩИК PRO</div>
-      <div class="controls-group">
-        <button id="btn-theme" title="Тема">🌙 Тема (Светлая)</button>
-        <button id="btn-sfx" class="btn-active" title="Звуки">🔊 SFX (Вкл)</button>
-      </div>
-    </header>
-    <div class="game-layout">
-      <aside class="sidebar-panel">
-        <h2 style="margin-bottom: 1.5rem;">Склад / Рынок</h2>
-        <div id="market-list"></div>
-      </aside>
-      <main class="main-panel">
-        <div class="balance-display">Баланс: <span id="balance-val">1 000</span> ₽</div>
-        <div class="graph-container">
-          <h3 style="margin-bottom:1rem;">Динамика цены</h3>
-          <div id="chart-area" class="chart-placeholder">Выберите предмет слева, чтобы увидеть график</div>
-        </div>
-        <div class="actions-panel">
-          <h3>Действия</h3>
-          <p id="selected-item-name" style="font-weight:bold; margin: 1rem 0; color:var(--text-main);">Ничего не выбрано</p>
-          <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1rem;">
-            <span>Рыночная цена:</span>
-            <strong id="current-market-price">0 ₽</strong>
-          </div>
-          <div class="action-buttons">
-            <button class="btn-big btn-buy" onclick="performAction('buy')">Купить по рынку</button>
-            <button class="btn-big btn-sell" onclick="performAction('sell')">Продать по рынку</button>
-            <div style="display:flex; gap:0.5rem; align-items:center;">
-              <input type="number" id="custom-price" placeholder="Ваша цена" min="1">
-              <button class="btn-big btn-offer" onclick="setCustomOffer()">Выставить свою цену</button>
-            </div>
-          </div>
-          <p id="status-msg" style="margin-top:1rem; font-size:0.9rem;"></p>
-        </div>
-      </main>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Скупщик PRO</title>
+  <style>
+    :root {
+      --bg-color: #f0f2f5;
+      --panel-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --accent: #3b82f6;
+      --success: #10b981;
+      --danger: #ef4444;
+      --border: #e2e8f0;
+    }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    body.dark-mode {
+      --bg-color: #1a1b26;
+      --panel-bg: #16213e;
+      --text-main: #c0caf5;
+      --text-muted: #8f94cb;
+      --border: #333;
+      background-color: var(--bg-color);
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: var(--panel-bg);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .controls-group button {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-right: 0.5rem;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .controls-group button:hover { background: var(--accent); color: white; border-color: var(--accent); }
+    .btn-active { background: var(--success) !important; color: white !important; }
+    .game-layout {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 20px;
+      padding: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .sidebar-panel {
+      background: var(--panel-bg);
+      border-radius: 12px;
+      padding: 1.5rem;
+      height: calc(100vh - 120px);
+      overflow-y: auto;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .item-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      background: #fff;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.2s;
+    }
+    .item-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .item-card.selected { border-color: var(--accent); background: rgba(59, 130, 246, 0.05); }
+    .item-info h3 { color: var(--text-main); margin-bottom: 0.5rem; }
+    .item-price { font-weight: bold; color: var(--text-muted); margin-bottom: 0.5rem; display: block; }
+    .item-stats { font-size: 0.85rem; color: var(--text-muted); }
+    .main-panel { display: flex; flex-direction: column; gap: 20px; }
+    .graph-container {
+      background: var(--panel-bg);
+      border-radius: 12px;
+      padding: 1.5rem;
+      min-height: 280px;
+      position: relative;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .chart-placeholder { text-align: center; padding: 50px; color: var(--text-muted); font-style: italic; }
+    .data-point {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: var(--accent);
+      border: 2px solid white;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      z-index: 10;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      transition: transform 0.2s, background 0.2s;
+    }
+    .data-point:hover { transform: translate(-50%, -50%) scale(1.4); background: var(--success); }
+    .tooltip {
+      position: absolute;
+      top: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s;
+      pointer-events: none;
+      z-index: 20;
+    }
+    .data-point:hover .tooltip { opacity: 1; visibility: visible; }
+    .actions-panel {
+      background: var(--panel-bg);
+      border-radius: 12px;
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+    }
+    .balance-display { font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: var(--text-main); }
+    .action-buttons { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn-big {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      font-weight: 600;
+    }
+    .btn-buy { background: var(--success); color: white; }
+    .btn-sell { background: var(--danger); color: white; }
+    .btn-offer { background: var(--accent); color: white; }
+    .btn-big:hover { opacity: 0.9; transform: scale(1.02); }
+    input[type="number"] {
+      padding: 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      width: 150px;
+      text-align: right;
+      color: var(--text-main);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo" style="font-weight:bold; font-size:1.2rem;">СКУПЩИК PRO</div>
+    <div class="controls-group">
+      <button id="btn-theme" title="Тема">🌙 Тема (Светлая)</button>
+      <button id="btn-sfx" class="btn-active" title="Звуки">🔊 SFX (Вкл)</button>
+      <button id="btn-save" title="Сохранить">💾 Сохранить</button>
+      <button id="btn-load" title="Загрузить">📂 Загрузить</button>
     </div>
+  </header>
+  <div class="game-layout">
+    <aside class="sidebar-panel">
+      <h2 style="margin-bottom: 1.5rem;">Склад / Рынок</h2>
+      <div id="market-list"></div>
+    </aside>
+    <main class="main-panel">
+      <div class="balance-display">Баланс: <span id="balance-val">1 000</span> ₽</div>
+      <div class="graph-container">
+        <h3 style="margin-bottom:1rem;">Динамика цены</h3>
+        <div id="chart-area" class="chart-placeholder">Выберите предмет слева, чтобы увидеть график</div>
+      </div>
+      <div class="actions-panel">
+        <h3>Действия</h3>
+        <p id="selected-item-name" style="font-weight:bold; margin: 1rem 0; color:var(--text-main);">Ничего не выбрано</p>
+        <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1rem;">
+          <span>Рыночная цена:</span>
+          <strong id="current-market-price">0 ₽</strong>
+        </div>
+        <div class="action-buttons">
+          <button class="btn-big btn-buy" onclick="performAction('buy')">Купить по рынку</button>
+          <button class="btn-big btn-sell" onclick="performAction('sell')">Продать по рынку</button>
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <input type="number" id="custom-price" placeholder="Ваша цена" min="1">
+            <button class="btn-big btn-offer" onclick="setCustomOffer()">Выставить свою цену</button>
+          </div>
+        </div>
+        <p id="status-msg" style="margin-top:1rem; font-size:0.9rem;"></p>
+      </div>
+    </main>
+  </div>
 
-    <script>
-      const itemsData = [
-        { id: 'gum', name: 'Жвачка', baseBuy: 500, baseSell: 700, stock: 100, owned: 0, volatility: 0.4 },
-        { id: 'coffee', name: 'Стакан кофе', baseBuy: 1200, baseSell: 1600, stock: 50, owned: 0, volatility: 0.3 },
-        { id: 'book', name: 'Популярная книга', baseBuy: 2500, baseSell: 3200, stock: 20, owned: 0, volatility: 0.25 },
-        { id: 'headphones', name: 'Проводные наушники', baseBuy: 3000, baseSell: 4500, stock: 30, owned: 0, volatility: 0.3 },
-        { id: 'phone', name: 'iPhone 12 (б/у)', baseBuy: 45000, baseSell: 55000, stock: 3, owned: 0, volatility: 0.15 },
-        { id: 'laptop', name: 'Ноутбук для учебы', baseBuy: 65000, baseSell: 80000, stock: 5, owned: 0, volatility: 0.12 },
-        { id: 'watch', name: 'Умные часы', baseBuy: 25000, baseSell: 35000, stock: 10, owned: 0, volatility: 0.2 },
-        { id: 'bike', name: 'Городской велосипед', baseBuy: 40000, baseSell: 55000, stock: 8, owned: 0, volatility: 0.18 },
-        { id: 'console', name: 'Игровая консоль', baseBuy: 48000, baseSell: 60000, stock: 4, owned: 0, volatility: 0.14 },
-        { id: 'camera', name: 'Зеркальный фотоаппарат', baseBuy: 90000, baseSell: 110000, stock: 2, owned: 0, volatility: 0.1 },
-        { id: 'drone', name: 'Квадрокоптер', baseBuy: 75000, baseSell: 95000, stock: 3, owned: 0, volatility: 0.16 },
-        { id: 'ps5', name: 'PlayStation 5 Slim', baseBuy: 52000, baseSell: 65000, stock: 6, owned: 0, volatility: 0.13 },
-        { id: 'xbox', name: 'Xbox Series X', baseBuy: 55000, baseSell: 68000, stock: 5, owned: 0, volatility: 0.13 },
-        { id: 'tablet', name: 'Планшет 11"', baseBuy: 35000, baseSell: 45000, stock: 7, owned: 0, volatility: 0.17 },
-        { id: 'keyboard', name: 'Механическая клавиатура', baseBuy: 8000, baseSell: 12000, stock: 15, owned: 0, volatility: 0.22 },
-        { id: 'mouse', name: 'Геймерская мышь', baseBuy: 4000, baseSell: 6000, stock: 25, owned: 0, volatility: 0.28 },
-        { id: 'monitor', name: 'Монитор 27" 144Hz', baseBuy: 25000, baseSell: 32000, stock: 12, owned: 0, volatility: 0.19 },
-        { id: 'gpu', name: 'Видеокарта (б/у)', baseBuy: 120000, baseSell: 150000, stock: 2, owned: 0, volatility: 0.09 },
-        { id: 'pc', name: 'Игровой ПК', baseBuy: 250000, baseSell: 300000, stock: 1, owned: 0, volatility: 0.07 },
-        { id: 'car', name: 'Старый автомобиль', baseBuy: 500000, baseSell: 600000, stock: 1, owned: 0, volatility: 0.05 },
-      ];
+  <script>
+    const defaultItems = [
+      { id: 'gum', name: 'Жвачка', baseBuy: 500, baseSell: 700, stock: 100, owned: 0, volatility: 0.4 },
+      { id: 'coffee', name: 'Стакан кофе', baseBuy: 1200, baseSell: 1600, stock: 50, owned: 0, volatility: 0.3 },
+      { id: 'book', name: 'Популярная книга', baseBuy: 2500, baseSell: 3200, stock: 20, owned: 0, volatility: 0.25 },
+      { id: 'headphones', name: 'Проводные наушники', baseBuy: 3000, baseSell: 4500, stock: 30, owned: 0, volatility: 0.3 },
+      { id: 'phone', name: 'iPhone 12 (б/у)', baseBuy: 45000, baseSell: 55000, stock: 3, owned: 0, volatility: 0.15 },
+      { id: 'laptop', name: 'Ноутбук для учебы', baseBuy: 65000, baseSell: 80000, stock: 5, owned: 0, volatility: 0.12 },
+      { id: 'watch', name: 'Умные часы', baseBuy: 25000, baseSell: 35000, stock: 10, owned: 0, volatility: 0.2 },
+      { id: 'bike', name: 'Городской велосипед', baseBuy: 40000, baseSell: 55000, stock: 8, owned: 0, volatility: 0.18 },
+      { id: 'console', name: 'Игровая консоль', baseBuy: 48000, baseSell: 60000, stock: 4, owned: 0, volatility: 0.14 },
+      { id: 'camera', name: 'Зеркальный фотоаппарат', baseBuy: 90000, baseSell: 110000, stock: 2, owned: 0, volatility: 0.1 },
+      { id: 'drone', name: 'Квадрокоптер', baseBuy: 75000, baseSell: 95000, stock: 3, owned: 0, volatility: 0.16 },
+      { id: 'ps5', name: 'PlayStation 5 Slim', baseBuy: 52000, baseSell: 65000, stock: 6, owned: 0, volatility: 0.13 },
+      { id: 'xbox', name: 'Xbox Series X', baseBuy: 55000, baseSell: 68000, stock: 5, owned: 0, volatility: 0.13 },
+      { id: 'tablet', name: 'Планшет 11"', baseBuy: 35000, baseSell: 45000, stock: 7, owned: 0, volatility: 0.17 },
+      { id: 'keyboard', name: 'Механическая клавиатура', baseBuy: 8000, baseSell: 12000, stock: 15, owned: 0, volatility: 0.22 },
+      { id: 'mouse', name: 'Геймерская мышь', baseBuy: 4000, baseSell: 6000, stock: 25, owned: 0, volatility: 0.28 },
+      { id: 'monitor', name: 'Монитор 27" 144Hz', baseBuy: 25000, baseSell: 32000, stock: 12, owned: 0, volatility: 0.19 },
+      { id: 'gpu', name: 'Видеокарта (б/у)', baseBuy: 120000, baseSell: 150000, stock: 2, owned: 0, volatility: 0.09 },
+      { id: 'pc', name: 'Игровой ПК', baseBuy: 250000, baseSell: 300000, stock: 1, owned: 0, volatility: 0.07 },
+      { id: 'car', name: 'Старый автомобиль', baseBuy: 500000, baseSell: 600000, stock: 1, owned: 0, volatility: 0.05 },
+    ];
 
-      let balance = 1000;
-      let selectedItemId = null;
-      let chartData = [];
-      let isSfxOn = true;
-      let audioCtx = null; 
-      let customOfferPrice = null;
-      let offerTimer = null;
+    let balance = 1000;
+    let selectedItemId = null;
+    let chartData = [];
+    let isSfxOn = true;
+    let audioCtx = null; 
+    let customOfferPrice = null;
+    let itemsData = [];
 
-      const marketListEl = document.getElementById('market-list');
-      const balanceEl = document.getElementById('balance-val');
-      const statusMsgEl = document.getElementById('status-msg');
-      const selectedNameEl = document.getElementById('selected-item-name');
-      const currentPriceEl = document.getElementById('current-market-price');
-      const customPriceInput = document.getElementById('custom-price');
+    const marketListEl = document.getElementById('market-list');
+    const balanceEl = document.getElementById('balance-val');
+    const statusMsgEl = document.getElementById('status-msg');
+    const selectedNameEl = document.getElementById('selected-item-name');
+    const currentPriceEl = document.getElementById('current-market-price');
+    const customPriceInput = document.getElementById('custom-price');
 
-      document.getElementById('btn-theme').addEventListener('click', toggleTheme);
-      document.getElementById('btn-sfx').addEventListener('click', toggleSFX);
+    document.getElementById('btn-theme').addEventListener('click', toggleTheme);
+    document.getElementById('btn-sfx').addEventListener('click', toggleSFX);
+    document.getElementById('btn-save').addEventListener('click', saveGame);
+    document.getElementById('btn-load').addEventListener('click', loadGame);
 
-      function init() {
-        renderMarket();
-        updatePricesLoop();
+    function init() {
+      const saved = localStorage.getItem('scupshik_game_state');
+      if (saved) {
+        const state = JSON.parse(saved);
+        balance = state.balance;
+        itemsData = state.items.map(i => ({...i}));
+        customOfferPrice = state.customOfferPrice || null;
+        showStatus('Игра загружена из сохранения', true);
+      } else {
+        itemsData = defaultItems.map(i => ({...i}));
       }
+      renderMarket();
+      updatePricesLoop();
+    }
 
-      function renderMarket() {
-        marketListEl.innerHTML = '';
-        itemsData.forEach(item => {
-          const card = document.createElement('div');
-          card.className = `item-card ${selectedItemId === item.id ? 'selected' : ''}`;
-          card.onclick = () => selectItem(item.id);
-          
-          const ownedClass = item.owned > 0 ? 'style="color:var(--success)"' : '';
-          
-          card.innerHTML = `
-            <div class="item-info">
-              <h3>${item.name}</h3>
-              <span class="item-price">Рынок: ~${item.baseSell.toLocaleString()} ₽</span>
-              <div class="item-stats">На рынке: ${item.stock} | У
-              вас: <b ${ownedClass}>${item.owned}</b></div>
-            </div>`;
-          marketListEl.appendChild(card);
-        });
+    function renderMarket() {
+      marketListEl.innerHTML = '';
+      itemsData.forEach(item => {
+        const card = document.createElement('div');
+        card.className = `item-card ${selectedItemId === item.id ? 'selected' : ''}`;
+        card.onclick = () => selectItem(item.id);
+        const ownedClass = item.owned > 0 ? 'style="color:var(--success)"' : '';
+        card.innerHTML = `
+                   <div class="item-info">
+            <h3>${item.name}</h3>
+            <span class="item-price">Рынок: ~${item.baseSell.toLocaleString()} ₽</span>
+            <div class="item-stats">На рынке: ${item.stock} шт. | У вас: <b ${ownedClass}>${item.owned}</b></div>
+          </div>`;
+        marketListEl.appendChild(card);
+      });
+    }
+
+    function selectItem(id) {
+      selectedItemId = id;
+      const item = itemsData.find(i => i.id === id);
+      renderMarket();
+      
+      selectedNameEl.textContent = item.name;
+      currentPriceEl.textContent = (item.buyPrice || item.baseBuy).toLocaleString() + ' ₽';
+      customPriceInput.value = '';
+      customOfferPrice = null;
+      
+      chartData = [];
+      for(let i = 0; i < 20; i++) {
+        const fluctuation = (Math.random() - 0.5) * 2 * item.volatility * item.baseBuy;
+        chartData.push(Math.max(100, Math.round(item.baseBuy + fluctuation)));
       }
+      drawChart(chartData);
+    }
 
-      function selectItem(id) {
-        selectedItemId = id;
-        const item = itemsData.find(i => i.id === id);
-        
-        renderMarket();
-        
-        selectedNameEl.textContent = item.name;
-        currentPriceEl.textContent = (item.buyPrice || item.baseBuy).toLocaleString() + ' ₽';
-        customPriceInput.value = '';
-        customOfferPrice = null;
-        clearInterval(offerTimer);
-        offerTimer = null;
-        
-        chartData = [];
-        for(let i = 0; i < 20; i++) {
-          const fluctuation = (Math.random() - 0.5) * 2 * item.volatility * item.baseBuy;
-          chartData.push(Math.max(100, Math.round(item.baseBuy + fluctuation)));
-        }
-        drawChart(chartData);
-      }
+    function drawChart(data) {
+      const container = document.getElementById('chart-area');
+      container.innerHTML = ''; 
+      
+      const canvas = document.createElement('canvas');
+      canvas.id = 'price-chart';
+      container.appendChild(canvas);
+      const ctx = canvas.getContext('2d');
+      
+      const w = canvas.width = container.clientWidth;
+      const h = canvas.height = 200;
+      
+      if (!data.length) return;
 
-      function drawChart(data) {
-        const container = document.getElementById('chart-area');
-        container.innerHTML = ''; 
-        
-        const canvas = document.createElement('canvas');
-        canvas.id = 'price-chart';
-        container.appendChild(canvas);
-        const ctx = canvas.getContext('2d');
-        
-        const w = canvas.width = container.clientWidth;
-        const h = canvas.height = 200;
-        
-        if (!data.length) return;
+      const min = Math.min(...data);
+      const max = Math.max(...data);
+      const range = max - min;
+      const padding = 30; 
 
-        const min = Math.min(...data);
-        const max = Math.max(...data);
-        const range = max - min;
-        const padding = 30; 
-
-        ctx.strokeStyle = 'var(--border)';
-        ctx.lineWidth = 1;
-        const steps = 4;
-        for(let i = 0; i <= steps; i++) {
-          const y = padding + ((h - padding * 2) / steps) * i;
-          ctx.beginPath();
-          ctx.moveTo(padding, y);
-          ctx.lineTo(w - padding, y);
-          ctx.stroke();
-        }
-
-        ctx.fillStyle = 'transparent';
-        ctx.strokeStyle = 'var(--accent)';
-        ctx.lineWidth = 3;
+      ctx.strokeStyle = 'var(--border)';
+      ctx.lineWidth = 1;
+      const steps = 4;
+      for(let i = 0; i <= steps; i++) {
+        const y = padding + ((h - padding * 2) / steps) * i;
         ctx.beginPath();
-        
-        data.forEach((price, i) => {
-          const x = padding + (i / (data.length - 1)) * (w - padding * 2);
-          const yRatio = range === 0 ? 0 : (max - price) / range;
-          const y = yRatio * (h - padding * 2) + padding;
-          
-          if (i === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        });
+        ctx.moveTo(padding, y);
+        ctx.lineTo(w - padding, y);
         ctx.stroke();
+      }
 
-        data.forEach((price, i) => {
-          const x = padding + (i / (data.length - 1)) * (w - padding * 2);
-          const yRatio = range === 0 ? 0 : (max - price) / range;
-          const y = yRatio * (h - padding * 2) + padding;
+      ctx.fillStyle = 'transparent';
+      ctx.strokeStyle = 'var(--accent)';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      
+      data.forEach((price, i) => {
+        const x = padding + (i / (data.length - 1)) * (w - padding * 2);
+        const yRatio = range === 0 ? 0 : (max - price) / range;
+        const y = yRatio * (h - padding * 2) + padding;
+        
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
 
-          const point = document.createElement('div');
-          point.className = 'data-point';
-          point.style.left = x + 'px';
-          point.style.top = y + 'px';
+      data.forEach((price, i) => {
+        const x = padding + (i / (data.length - 1)) * (w - padding * 2);
+        const yRatio = range === 0 ? 0 : (max - price) / range;
+        const y = yRatio * (h - padding * 2) + padding;
 
-          const tooltip = document.createElement('div');
-          tooltip.className = 'tooltip';
-          tooltip.textContent = `${price.toLocaleString()} ₽ (День ${i + 1})`;
-          point.appendChild(tooltip);
+        const point = document.createElement('div');
+        point.className = 'data-point';
+        point.style.left = x + 'px';
+        point.style.top = y + 'px';
 
-          point.addEventListener('click', (e) => {
-            e.stopPropagation(); 
-            showStatus(`Цена в этой точке: ${price.toLocaleString()} ₽`, true);
-            playSound('success');
-          });
+        const tooltip = document.createElement('div');
+        tooltip.className = 'tooltip';
+        tooltip.textContent = `${price.toLocaleString()} ₽ (День ${i + 1})`;
+        point.appendChild(tooltip);
 
-          container.appendChild(point);
+        point.addEventListener('click', (e) => {
+          e.stopPropagation(); 
+          showStatus(`Цена в этой точке: ${price.toLocaleString()} ₽`, true);
+          playSound('success');
         });
 
-        ctx.fillStyle = 'var(--text-muted)';
-        ctx.font = '12px Arial';
-        ctx.textAlign = 'right';
-        ctx.fillText(max.toLocaleString(), padding - 5, padding);
-        ctx.fillText(min.toLocaleString(), padding - 5, h - padding);
-      }
+        container.appendChild(point);
+      });
 
-      function toggleTheme() {
-        document.body.classList.toggle('dark-mode');
-        const btn = document.getElementById('btn-theme');
-        btn.textContent = document.body.classList.contains('dark-mode') ? '☀️ Тема (Тёмная)' : '🌙 Тема (Светлая)';
-      }
+      ctx.fillStyle = 'var(--text-muted)';
+      ctx.font = '12px Arial';
+      ctx.textAlign = 'right';
+      ctx.fillText(max.toLocaleString(), padding - 5, padding);
+      ctx.fillText(min.toLocaleString(), padding - 5, h - padding);
+    }
 
-      function toggleSFX() {
-        isSfxOn = !isSfxOn;
-        const btn = document.getElementById('btn-sfx');
-        if (isSfxOn) {
-          btn.classList.add('btn-active');
-          btn.textContent = '🔊 SFX (Вкл)';
-        } else {
-          btn.classList.remove('btn-active');
-          btn.textContent = '🔉 SFX (Выкл)';
-        }
-      }
+    function toggleTheme() {
+      document.body.classList.toggle('dark-mode');
+      const btn = document.getElementById('btn-theme');
+      btn.textContent = document.body.classList.contains('dark-mode') ? '☀️ Тема (Тёмная)' : '🌙 Тема (Светлая)';
+    }
 
-      function playSound(type) {
-        if (!isSfxOn) return;
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContext) return;
-        if(!audioCtx) audioCtx = new AudioContext();
-        
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        
-        osc.type = type === 'success' ? 'sine' : 'square';
-        
-        let freq = 440;
-        let dur = 0.1;
-        
-        if (type === 'success') {
-          freq = 660; dur = 0.2;
-        } else if (type === 'error') {
-          freq = 220; dur = 0.15;
-        }
-        
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
-        osc.start();
-        osc.stop(audioCtx.currentTime + dur);
+    function toggleSFX() {
+      isSfxOn = !isSfxOn;
+      const btn = document.getElementById('btn-sfx');
+      if (isSfxOn) {
+        btn.classList.add('btn-active');
+        btn.textContent = '🔊 SFX (Вкл)';
+      } else {
+        btn.classList.remove('btn-active');
+        btn.textContent = '🔉 SFX (Выкл)';
       }
+    }
 
-      function updatePricesLoop() {
-        setInterval(() => {
-          itemsData.forEach(item => {
-            const change = (Math.random() - 0.5) * 2 * item.volatility * item.baseBuy;
-            item.baseBuy = Math.max(100, Math.round(item.baseBuy + change));
-            item.baseSell = Math.round(item.baseBuy * 1.2); 
-          });
+    function playSound(type) {
+      if (!isSfxOn) return;
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+      if(!audioCtx) audioCtx = new AudioContext();
+      
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      
+      osc.type = type === 'success' ? 'sine' : 'square';
+      
+      let freq = 440;
+      let dur = 0.1;
+      
+      if (type === 'success') {
+        freq = 660; dur = 0.2;
+      } else if (type === 'error') {
+        freq = 220; dur = 0.15;
+      }
+      
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+      osc.start();
+      osc.stop(audioCtx.currentTime + dur);
+    }
+
+    function updatePricesLoop() {
+      setInterval(() => {
+        itemsData.forEach(item => {
+          const change = (Math.random() - 0.5) * 2 * item.volatility * item.baseBuy;
+          item.baseBuy = Math.max(100, Math.round(item.baseBuy + change));
+          item.baseSell = Math.round(item.baseBuy * 1.2); 
+        });
+        
+        if (selectedItemId) {
+          const item = itemsData.find(i => i.id === selectedItemId);
+          currentPriceEl.textContent = item.baseBuy.toLocaleString() + ' ₽';
           
-          if (selectedItemId) {
-            const item = itemsData.find(i => i.id === selectedItemId);
-            currentPriceEl.textContent = item.baseBuy.toLocaleString() + ' ₽';
-            
-            chartData.shift();
-            chartData.push(item.baseBuy);
-            drawChart(chartData);
+          chartData.shift();
+          chartData.push(item.baseBuy);
+          drawChart(chartData);
 
-            checkCustomOffer(item);
-          }
-          renderMarket(); 
-        }, 3000); 
+          checkCustomOffer(item);
+        }
+        renderMarket(); 
+      }, 3000); 
+    }
+
+    function setCustomOffer() {
+      if (!selectedItemId) {
+        showStatus('Сначала выберите предмет слева!', false);
+        playSound('error');
+        return;
       }
 
-      function setCustomOffer() {
-        if (!selectedItemId) {
-          showStatus('Сначала выберите предмет слева!', false);
-          playSound('error');
-          return;
-        }
+      const price = parseInt(customPriceInput.value);
+      if (!price || price <= 0) {
+        showStatus('Введите корректную цену!', false);
+        playSound('error');
+        return;
+      }
 
-        const price = parseInt(customPriceInput.value);
-        if (!price || price <= 0) {
-          showStatus('Введите корректную цену!', false);
-          playSound('error');
-          return;
-        }
+      if (balance < price) {
+        showStatus('Недостаточно средств для такой ставки', false);
+        playSound('error');
+        return;
+      }
 
-        if (balance < price) {
-          showStatus('Недостаточно средств для такой ставки', false);
-          playSound('error');
-          return;
-        }
+      customOfferPrice = price;
+      showStatus(`Ставка установлена: ${price.toLocaleString()} ₽. Ждём совпадения цены...`, true);
+      playSound('success');
+    }
 
-        customOfferPrice = price;
-        showStatus(`Ставка установлена: ${price.toLocaleString()} ₽. Ждём совпадения цены...`, true);
+    function checkCustomOffer(item) {
+      if (customOfferPrice === null) return;
+
+      if (Math.abs(item.baseBuy - customOfferPrice) <= 10) {
+        balance -= customOfferPrice;
+        item.stock--;
+        item.owned++;
+        customOfferPrice = null;
+
+        showStatus(`Сделка прошла! Куплено: ${item.name} за ${customOfferPrice.toLocaleString()} ₽`, true);
+        balanceEl.textContent = balance.toLocaleString();
+        renderMarket();
         playSound('success');
       }
+    }
 
-      function checkCustomOffer(item) {
-        if (customOfferPrice === null) return;
+    function performAction(action) {
+      if (!selectedItemId) {
+        showStatus('Сначала выберите предмет слева!', false);
+        playSound('error');
+        return;
+      }
 
-        // Проверяем, достигла ли цена нужной отметки (с допуском 10₽ для плавности)
-        if (Math.abs(item.baseBuy - customOfferPrice) <= 10) {
-          // Сделка проходит
-          balance -= customOfferPrice;
+      const item = itemsData.find(i => i.id === selectedItemId);
+
+      if (action === 'buy') {
+        const price = item.baseBuy;
+        if (balance >= price && item.stock > 0) {
+          balance -= price;
           item.stock--;
           item.owned++;
-          customOfferPrice = null;
-          clearInterval(offerTimer);
-          offerTimer = null;
-
-          showStatus(`Сделка прошла! Куплено: ${item.name} за ${customOfferPrice.toLocaleString()} ₽`, true);
+          showStatus(`Куплено: ${item.name} за ${price.toLocaleString()} ₽`, true);
           balanceEl.textContent = balance.toLocaleString();
           renderMarket();
           playSound('success');
         } else {
-          // Если цена ушла далеко от ставки — можно отменить или оставить ждать
-          // Здесь оставляем ждать. Если хочешь автоотмену — раскомментируй блок ниже:
-          /*
-          if (Math.abs(item.baseBuy - customOfferPrice) > 500) {
-            customOfferPrice = null;
-            showStatus('Цена слишком сильно отклонилась, ставка снята', false);
-            playSound('error');
-          }
-          */
-        }
-      }
-
-      function performAction(action) {
-        if (!selectedItemId) {
-          showStatus('Сначала выберите предмет слева!', false);
+          let reason = '';
+          if (balance < price) reason = 'Недостаточно средств';
+          else if (item.stock <= 0) reason = 'Нет на складе';
+          showStatus(reason, false);
           playSound('error');
-          return;
         }
-
-        const item = itemsData.find(i => i.id === selectedItemId);
-
-        if (action === 'buy') {
-          const price = item.baseBuy;
-          if (balance >= price && item.stock > 0) {
-            balance -= price;
-            item.stock--;
-            item.owned++;
-            showStatus(`Куплено: ${item.name} за ${price.toLocaleString()} ₽`, true);
-            balanceEl.textContent = balance.toLocaleString();
-            renderMarket();
-            playSound('success');
-          } else {
-            let reason = '';
-            if (balance < price) reason = 'Недостаточно средств';
-            else if (item.stock <= 0) reason = 'Нет на складе';
-            showStatus(reason, false);
-            playSound('error');
-          }
-        } else if (action === 'sell') {
-          if (item.owned > 0) {
-            balance += item.baseSell;
-            item.owned--;
-            item.stock++;
-            showStatus(`Продано: ${item.name} за ${item.baseSell.toLocaleString()} ₽`, true);
-            balanceEl.textContent = balance.toLocaleString();
-            renderMarket();
-            playSound('success');
-          } else {
-            showStatus('У вас нет этого предмета', false);
-            playSound('error');
-          }
+      } else if (action === 'sell') {
+        if (item.owned > 0) {
+          balance += item.baseSell;
+          item.owned--;
+          item.stock++;
+          showStatus(`Продано: ${item.name} за ${item.baseSell.toLocaleString()} ₽`, true);
+          balanceEl.textContent = balance.toLocaleString();
+          renderMarket();
+          playSound('success');
+        } else {
+          showStatus('У вас нет этого предмета', false);
+          playSound('error');
         }
       }
+    }
 
-      function showStatus(msg, isSuccess) {
-        statusMsgEl.textContent = msg;
-        statusMsgEl.style.color = isSuccess ? 'var(--success)' : 'var(--danger)';
+    function showStatus(msg, isSuccess) {
+      statusMsgEl.textContent = msg;
+      statusMsgEl.style.color = isSuccess ? 'var(--success)' : 'var(--danger)';
+    }
+
+    function saveGame() {
+      const state = {
+        balance: balance,
+        items: itemsData,
+        customOfferPrice: customOfferPrice
+      };
+      localStorage.setItem('scupshik_game_state', JSON.stringify(state));
+      showStatus('Игра сохранена!', true);
+      playSound('success');
+    }
+
+    function loadGame() {
+      const saved = localStorage.getItem('scupshik_game_state');
+      if (!saved) {
+        showStatus('Нет сохранений', false);
+        playSound('error');
+        return;
       }
+      const state = JSON.parse(saved);
+      balance = state.balance;
+      itemsData = state.items.map(i => ({...i}));
+      customOfferPrice = state.customOfferPrice || null;
+      selectedItemId = null;
+      chartData = [];
+      
+      balanceEl.textContent = balance.toLocaleString();
+      selectedNameEl.textContent = 'Ничего не выбрано';
+      currentPriceEl.textContent = '0 ₽';
+      customPriceInput.value = '';
+      statusMsgEl.textContent = '';
+      
+      renderMarket();
+      showStatus('Игра загружена из сохранения', true);
+      playSound('success');
+    }
 
-      // Фоновая расслабляющая музыка (синтезаторный лоу-фай)
-      function startBackgroundMusic() {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContext) return;
-        if(audioCtx) return; // уже запущена
-        audioCtx = new AudioContext();
-
-        function playChord(notes, time, dur) {
-          notes.forEach(freq => {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.type = 'triangle';
-            osc.frequency.value = freq;
-            gain.gain.setValueAtTime(0.03, time);
-            gain.gain.exponentialRampToValueAtTime(0.002, time + dur);
-            osc.start(time);
-            osc.stop(time + dur);
-          });
-        }
-
-        // Простой паттерн аккордов (Am-F-C-G) в лоу-фай стиле
-        const chords = [
-          [440, 554, 659], // A-C#-E (Am)
-          [349, 440, 523], // F-A-C
-          [262, 330, 392], // C-E-G
-          [392, 494, 587]  // G-B-D
-        ];
-
-        chords.forEach((notes, idx) => {
-          playChord(notes, idx * 2, 2); // каждый аккорд 2 секунды
-        });
-
-        // Повторяем каждые 8 секунд
-        setInterval(() => {
-          chords.forEach((notes, idx) => {
-            playChord(notes, idx * 2, 2);
-          });
-        }, 8000);
-      }
-
-      // Запускаем музыку сразу при загрузке (тихая, фоновая)
-      startBackgroundMusic();
-
-      init();
-    </script>
-  </body>
+    init();
+  </script>
+</body>
 </html>
