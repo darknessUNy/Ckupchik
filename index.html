@@ -17,7 +17,6 @@
         --stripe-bg: rgba(59, 130, 246, 0.08); 
       }
 
-      /* Фон с диагональными полосками */
       body { 
         background-color: var(--bg-color); 
         background-image: 
@@ -25,7 +24,6 @@
           linear-gradient(-45deg, var(--stripe-bg) 25%, transparent 25%);
         background-size: 40px 40px;
         color: var(--text-main); 
-        transition: background 0.3s, color 0.3s;
         margin: 0;
       }
       
@@ -85,7 +83,6 @@
       }
       .chart-placeholder { text-align: center; padding: 50px; color: var(--text-muted); font-style: italic; }
 
-      /* Стили для точек на графике */
       .data-point {
         position: absolute;
         width: 14px;
@@ -104,7 +101,6 @@
         background: var(--success);
       }
 
-      /* Всплывающая подсказка */
       .tooltip {
         position: absolute;
         top: -40px;
@@ -188,7 +184,6 @@
     </div>
 
     <script>
-      // --- МНОГО НОВЫХ ПРЕДМЕТОВ С РАЗНЫМИ ЦЕНАМИ ---
       const itemsData = [
         { id: 'gum', name: 'Жвачка', baseBuy: 500, baseSell: 700, stock: 100, owned: 0, volatility: 0.4 },
         { id: 'coffee', name: 'Стакан кофе', baseBuy: 1200, baseSell: 1600, stock: 50, owned: 0, volatility: 0.3 },
@@ -212,7 +207,7 @@
         { id: 'car', name: 'Старый автомобиль', baseBuy: 500000, baseSell: 600000, stock: 1, owned: 0, volatility: 0.05 },
       ];
 
-      let balance = 1000; // Стартовый баланс 1000 рублей
+      let balance = 1000;
       let selectedItemId = null;
       let chartData = [];
       let isSfxOn = true;
@@ -231,8 +226,6 @@
       document.getElementById('btn-music').addEventListener('click', playMusic);
 
       function init() {
-        renderMarket
-      function init() {
         renderMarket();
         updatePricesLoop();
       }
@@ -244,12 +237,12 @@
           card.className = `item-card ${selectedItemId === item.id ? 'selected' : ''}`;
           card.onclick = () => selectItem(item.id);
           
-          // Цвет текста, если предмет есть у игрока
           const ownedClass = item.owned > 0 ? 'style="color:var(--success)"' : '';
           
           card.innerHTML = `
             <div class="item-info">
               <h3>${item.name}</h3>
+              <span class="item-price">Рынок: ~
               <span class="item-price">Рынок: ~${item.baseSell.toLocaleString()} ₽</span>
               <div class="item-stats">На рынке: ${item.stock} | У вас: <b ${ownedClass}>${item.owned}</b></div>
             </div>`;
@@ -261,27 +254,23 @@
         selectedItemId = id;
         const item = itemsData.find(i => i.id === id);
         
-        // Перерисовываем карточки, чтобы подсветить выбранную
-        renderMarket(); 
+        renderMarket();
         
         selectedNameEl.textContent = item.name;
         currentPriceEl.textContent = (item.buyPrice || item.baseBuy).toLocaleString() + ' ₽';
         customPriceInput.value = '';
         
-        // Генерируем историю цен для графика (случайные колебания)
         chartData = [];
         for(let i = 0; i < 20; i++) {
-          // Имитируем прошлую цену: базовая +/- волатильность
           const fluctuation = (Math.random() - 0.5) * 2 * item.volatility * item.baseBuy;
           chartData.push(Math.max(100, Math.round(item.baseBuy + fluctuation)));
         }
         drawChart(chartData);
       }
 
-      // --- ОТРИСОВКА ГРАФИКА С ТОЧКАМИ И ТУЛТИПАМИ ---
       function drawChart(data) {
         const container = document.getElementById('chart-area');
-        container.innerHTML = ''; // Очищаем перед перерисовкой
+        container.innerHTML = ''; 
         
         const canvas = document.createElement('canvas');
         canvas.id = 'price-chart';
@@ -298,7 +287,6 @@
         const range = max - min;
         const padding = 30; 
 
-        // Рисуем легкую сетку на фоне
         ctx.strokeStyle = 'var(--border)';
         ctx.lineWidth = 1;
         const steps = 4;
@@ -310,7 +298,6 @@
           ctx.stroke();
         }
 
-        // Рисуем линию графика
         ctx.fillStyle = 'transparent';
         ctx.strokeStyle = 'var(--accent)';
         ctx.lineWidth = 3;
@@ -326,25 +313,21 @@
         });
         ctx.stroke();
 
-        // --- СОЗДАЕМ КЛИКАБЕЛЬНЫЕ ТОЧКИ (СТРЕЛКИ) ---
         data.forEach((price, i) => {
           const x = padding + (i / (data.length - 1)) * (w - padding * 2);
           const yRatio = range === 0 ? 0 : (max - price) / range;
           const y = yRatio * (h - padding * 2) + padding;
 
-          // Создаем div-точку поверх канваса
           const point = document.createElement('div');
           point.className = 'data-point';
           point.style.left = x + 'px';
           point.style.top = y + 'px';
 
-          // Всплывающая подсказка
           const tooltip = document.createElement('div');
           tooltip.className = 'tooltip';
           tooltip.textContent = `${price.toLocaleString()} ₽ (День ${i + 1})`;
           point.appendChild(tooltip);
 
-          // Логика клика: показываем цену в статусе
           point.addEventListener('click', (e) => {
             e.stopPropagation(); 
             showStatus(`Вы кликнули на цену: ${price.toLocaleString()} ₽`, true);
@@ -353,9 +336,7 @@
 
           container.appendChild(point);
         });
-        // ----------------------------------------------
 
-        // Подписи осей (минимум и максимум)
         ctx.fillStyle = 'var(--text-muted)';
         ctx.font = '12px Arial';
         ctx.textAlign = 'right';
@@ -389,7 +370,6 @@
           osc.start(time);
           osc.stop(time + dur);
         }
-        // Короткая джазовая мелодия
         playNote(392, 0, 0.3); playNote(440, 0.3, 0.3);
         playNote(523, 0.6, 0.3); playNote(659, 0.9, 0.3);
         playNote(784, 1.2, 0.3); playNote(659, 1.5, 0.3);
@@ -446,24 +426,21 @@
       function updatePricesLoop() {
         setInterval(() => {
           itemsData.forEach(item => {
-            // Цены немного плавают каждую секунду
             const change = (Math.random() - 0.5) * 2 * item.volatility * item.baseBuy;
             item.baseBuy = Math.max(100, Math.round(item.baseBuy + change));
-            item.baseSell = Math.round(item.baseBuy * 1.2); // Маржа 20%
+            item.baseSell = Math.round(item.baseBuy * 1.2); 
           });
           
-          // Если предмет выбран, обновляем его цену и график
           if (selectedItemId) {
             const item = itemsData.find(i => i.id === selectedItemId);
             currentPriceEl.textContent = item.baseBuy.toLocaleString() + ' ₽';
             
-            // Добавляем новую цену в историю, старую убираем
             chartData.shift();
             chartData.push(item.baseBuy);
             drawChart(chartData);
           }
-          renderMarket(); // Обновляем список товаров с новыми ценами
-        }, 3000); // Обновление каждые 3 секунды
+          renderMarket(); 
+        }, 3000); 
       }
 
       function performAction(action) {
@@ -474,7 +451,6 @@
         }
 
         const item = itemsData.find(i => i.id === selectedItemId);
-        // Цена для сделки: своя или рыночная
         const price = action === 'offer' 
           ? parseInt(customPriceInput.value) 
           : (action === 'buy' ? item.baseBuy : item.baseSell);
@@ -485,43 +461,56 @@
           return;
         }
 
-        // ЛОГИКА ПОКУПКИ
         if (action === 'buy') {
           if (balance >= price && item.stock > 0) {
             balance -= price;
             item.stock--;
             item.owned++;
             showStatus(`Куплено: ${item.name} за ${price.toLocaleString()} ₽`, true);
+            balanceEl.textContent = balance.toLocaleString();
+            renderMarket();
             playSound('success');
           } else {
             let reason = '';
-            if (balance < price) reason = `Не хватает денег (нужно ${price.toLocaleString()} ₽, у вас ${balance.toLocaleString()} ₽)`;
+            if (balance < price) reason = 'Недостаточно средств';
             else if (item.stock <= 0) reason = 'Нет на складе';
             showStatus(reason, false);
             playSound('error');
           }
-        } 
-        // ЛОГИКА ПРОДАЖИ
-        else if (action === 'sell') {
+        } else if (action === 'sell') {
           if (item.owned > 0) {
-            balance += price;
+            balance += item.baseSell;
             item.owned--;
-            item.stock++; // Возвращаем на рынок
-            showStatus(`Продано: ${item.name} за ${price.toLocaleString()} ₽`, true);
+            item.stock++;
+            showStatus(`Продано: ${item.name} за ${item.baseSell.toLocaleString()} ₽`, true);
+            balanceEl.textContent = balance.toLocaleString();
+            renderMarket();
             playSound('success');
           } else {
             showStatus('У вас нет этого предмета', false);
             playSound('error');
           }
-        } 
-        // ЛОГИКА СВОЕЙ ЦЕНЫ (просто уведомление)
-        else if (action === 'offer') {
-          showStatus(`Заявка: вы предложили ${price.toLocaleString()} ₽ за ${item.name}`, true);
-          playSound('success');
+        } else if (action === 'offer') {
+          if (price <= 0) {
+            showStatus('Цена должна быть больше 0', false);
+            return;
+          }
+          if (balance >= price && item.stock > 0) {
+            balance -= price;
+            item.stock--;
+            item.owned++;
+            showStatus(`Сделка по вашей цене: ${item.name} за ${price.toLocaleString()} ₽`, true);
+            balanceEl.textContent = balance.toLocaleString();
+            renderMarket();
+            playSound('success');
+          } else {
+            let reason = '';
+            if (balance < price) reason = 'Недостаточно средств для вашей цены';
+            else if (item.stock <= 0) reason = 'Нет на складе';
+            showStatus(reason, false);
+            playSound('error');
+          }
         }
-
-        balanceEl.textContent = balance.toLocaleString();
-        renderMarket();
       }
 
       function showStatus(msg, isSuccess) {
@@ -529,7 +518,6 @@
         statusMsgEl.style.color = isSuccess ? 'var(--success)' : 'var(--danger)';
       }
 
-      // Запуск игры
       init();
     </script>
   </body>
