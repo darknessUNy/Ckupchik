@@ -125,7 +125,16 @@ body.light .theme-toggle { background: #e0e0e0; }
 </div>
 
 <script>
-const ITEMS = [{ id: 'pencil', name: 'Карандаш', image: '✏️', minPrice: 50, maxPrice: 125, marketPrice: 87 }];
+const ITEMS = [
+    {
+        id: 'pencil',
+        name: 'Карандаш',
+        image: 'https://cdn-icons-png.flaticon.com/512/1073/1073475.png',
+        minPrice: 10,
+        maxPrice: 250,
+        marketPrice: 100
+    }
+];
 let balance = 1000;
 let mySales = [];
 let currentItemIndex = 0;
