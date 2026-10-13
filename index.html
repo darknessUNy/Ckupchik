@@ -47,20 +47,85 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px;
 .price-caption.normal { color: #00aaff; }
 .big-btn { width: 100%; padding: 18px; background: #00aaff; color: white; border: none; border-radius: 15px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 20px; }
 .big-btn:hover { background: #0091ea; }
-.items-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.item-card { background: white; border-radius: 15px; padding: 12px; cursor: pointer; transition: transform 0.2s; text-align: center; }
-.item-card:hover { transform: scale(1.03); }
-.item-card img { width: 100%; height: 100px; object-fit: contain; margin-bottom: 8px; }
-.item-card .item-name { color: #1e1e1e; font-weight: bold; font-size: 14px; }
-.item-card .item-price { color: #00aaff; font-size: 13px; margin-top: 4px; }
+
+.inv-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+.inv-tab { flex: 1; padding: 14px; border-radius: 25px; background: #2b2b2b; color: #888; font-weight: bold; cursor: pointer; border: none; font-size: 14px; }
+.inv-tab.active { background: #00aaff; color: white; }
+
+.inv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.inv-card {
+    background: white;
+    border-radius: 18px;
+    padding: 12px;
+    position: relative;
+    box-shadow: 0 0 12px rgba(255,140,26,0.6);
+    border: 2px solid #ff8c1a;
+}
+.inv-card .badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #00c853;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: bold;
+    z-index: 2;
+}
+.inv-card img {
+    width: 100%;
+    height: 100px;
+    object-fit: contain;
+    margin-bottom: 8px;
+}
+.inv-card .inv-name {
+    color: #1e1e1e;
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+.inv-card .btn-sell {
+    width: 100%;
+    background: #00aaff;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 13px;
+    cursor: pointer;
+    margin-bottom: 6px;
+}
+.inv-card .btn-fast {
+    width: 100%;
+    background: #ff1744;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 13px;
+    cursor: pointer;
+}
 .empty-inv { color: #666; padding: 40px 0; text-align: center; grid-column: 1 / -1; }
-.index-card { background: #1e1e1e; border-radius: 15px; padding: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 15px; }
-.index-card img { width: 60px; height: 60px; object-fit: contain; background: white; border-radius: 12px; padding: 5px; }
-.index-info { flex: 1; text-align: left; }
-.index-info .name { font-weight: bold; font-size: 16px; }
-.index-info .reward { color: #ff8c1a; font-size: 14px; margin-top: 4px; }
-.index-btn { background: #00c853; color: white; border: none; padding: 10px 16px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 14px; }
-.index-btn:disabled { background: #3a3a3a; color: #777; cursor: default; }
+
+.collection-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 0 15px; }
+.collection-header h2 { font-size: 22px; font-weight: bold; }
+.collection-header .progress { color: #ff8c1a; font-size: 22px; font-weight: bold; }
+
+.collection-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.collection-card { background: #3a3a3a; border-radius: 15px; overflow: hidden; position: relative; cursor: pointer; }
+.collection-card .rarity { position: absolute; top: 10px; left: 10px; background: #888; color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; z-index: 2; }
+.collection-card .img-wrap { background: #2b2b2b; height: 120px; display: flex; align-items: center; justify-content: center; position: relative; }
+.collection-card .img-wrap img { max-width: 70%; max-height: 70%; object-fit: contain; filter: brightness(0.4); }
+.collection-card .not-collected { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-weight: bold; font-size: 13px; text-align: center; z-index: 2; }
+.collection-card .bottom { background: #b0b0b0; color: #1e1e1e; padding: 12px; font-weight: bold; font-size: 14px; }
+.collection-card.collected .img-wrap img { filter: none; }
+.collection-card.collected .bottom { background: #ff8c1a; color: white; }
+.collection-card.collected .not-collected { display: none; }
+.collection-card.collected .rarity { background: #00aaff; }
+
 body.light { background: #f0f0f0; color: #1e1e1e; }
 body.light .topbar, body.light .bottombar { background: #ffffff; }
 body.light .btn-round { background: #1e1e1e; color: white; }
@@ -69,8 +134,7 @@ body.light .tab { background: #e0e0e0; color: #666; }
 body.light .modal-content { background: #ffffff; color: #1e1e1e; }
 body.light .setting-row { border-bottom-color: #e0e0e0; }
 body.light .theme-toggle { background: #e0e0e0; }
-body.light .item-card { background: #ffffff; border: 1px solid #e0e0e0; }
-body.light .index-card { background: #f0f0f0; }
+body.light .inv-tab { background: #e0e0e0; color: #666; }
 </style>
 </head>
 <body>
@@ -120,8 +184,18 @@ body.light .index-card { background: #f0f0f0; }
 
 <div class="modal" id="inventoryModal">
     <div class="modal-content">
-        <div class="modal-title">Инвентарь</div>
-        <div id="inventoryGrid" class="items-grid"></div>
+        <div class="inv-tabs">
+            <button class="inv-tab active" id="tabInv" onclick="switchInvTab('inv')">ИНВЕНТАРЬ</button>
+            <button class="inv-tab" id="tabCol" onclick="switchInvTab('col')">КОЛЛЕКЦИЯ</button>
+        </div>
+        <div id="invView"></div>
+        <div id="colView" style="display:none;">
+            <div class="collection-header">
+                <h2>Осенняя коллекция</h2>
+                <div class="progress" id="collectionProgress">0/1</div>
+            </div>
+            <div class="collection-grid" id="collectionGrid"></div>
+        </div>
         <button class="big-btn" onclick="closeModal('inventoryModal')">Закрыть</button>
     </div>
 </div>
@@ -143,14 +217,6 @@ body.light .index-card { background: #f0f0f0; }
     </div>
 </div>
 
-<div class="modal" id="indexModal">
-    <div class="modal-content">
-        <div class="modal-title">⚡ Индекс</div>
-        <div id="indexContent"></div>
-        <button class="big-btn" onclick="closeModal('indexModal')">Закрыть</button>
-    </div>
-</div>
-
 <script>
 const ITEMS = [
     {
@@ -160,7 +226,8 @@ const ITEMS = [
         minPrice: 10,
         maxPrice: 250,
         marketPrice: 100,
-        reward: 250
+        reward: 250,
+        rarity: 'Обычный'
     }
 ];
 
@@ -212,21 +279,40 @@ function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
 function openInventory() {
+    switchInvTab('inv');
     renderInventory();
+    renderCollection();
     openModal('inventoryModal');
 }
 
+function switchInvTab(tab) {
+    document.getElementById('tabInv').classList.remove('active');
+    document.getElementById('tabCol').classList.remove('active');
+    if (tab === 'inv') {
+        document.getElementById('tabInv').classList.add('active');
+        document.getElementById('invView').style.display = 'block';
+        document.getElementById('colView').style.display = 'none';
+    } else {
+        document.getElementById('tabCol').classList.add('active');
+        document.getElementById('invView').style.display = 'none';
+        document.getElementById('colView').style.display = 'block';
+    }
+}
+
 function renderInventory() {
-    const grid = document.getElementById('inventoryGrid');
+    const view = document.getElementById('invView');
     if (inventory.length === 0) {
-        grid.innerHTML = '<div class="empty-inv">Инвентарь пуст. Открой сундук!</div>';
+        view.innerHTML = '<div class="empty-inv">Инвентарь пуст. Открой сундук!</div>';
         return;
     }
-    grid.innerHTML = inventory.map((item, i) => `
-        <div class="item-card" onclick="openSell(${i})">
+    view.className = 'inv-grid';
+    view.innerHTML = inventory.map((item, i) => `
+        <div class="inv-card">
+            <div class="badge">НОВЫЙ</div>
             <img src="${item.image}" alt="${item.name}">
-            <div class="item-name">${item.name}</div>
-            <div class="item-price">${item.marketPrice} ₽</div>
+            <div class="inv-name">${item.name}</div>
+            <button class="btn-sell" onclick="openSell(${i})">НА ПРОДАЖУ</button>
+            <button class="btn-fast" onclick="fastSell(${i})">БЫСТРАЯ ПРОДАЖА</button>
         </div>
     `).join('');
 }
@@ -243,6 +329,16 @@ function openSell(index) {
     updatePriceCaption();
     closeModal('inventoryModal');
     openModal('sellModal');
+}
+
+function fastSell(index) {
+    const item = inventory[index];
+    const price = Math.round((item.minPrice + item.maxPrice) / 2);
+    balance += price;
+    inventory.splice(index, 1);
+    updateBalance();
+    renderInventory();
+    alert('Быстрая продажа: +' + price + ' ₽');
 }
 
 function updatePriceCaption() {
@@ -314,41 +410,47 @@ function openChest() {
 }
 
 function openIndex() {
-    renderIndex();
-    openModal('indexModal');
+    switchInvTab('col');
+    renderInventory();
+    renderCollection();
+    openModal('inventoryModal');
 }
 
-function renderIndex() {
-    const el = document.getElementById('indexContent');
-    el.innerHTML = ITEMS.map(item => {
+function renderCollection() {
+    const grid = document.getElementById('collectionGrid');
+    const collectedCount = ITEMS.filter(i => collectedIndex.includes(i.id)).length;
+    document.getElementById('collectionProgress').textContent = collectedCount + '/' + ITEMS.length;
+
+    grid.innerHTML = ITEMS.map(item => {
         const collected = collectedIndex.includes(item.id);
-        const inInventory = inventory.some(i => i.id === item.id);
-        const canCollect = inInventory && !collected;
         return `
-            <div class="index-card">
-                <img src="${item.image}" alt="${item.name}">
-                <div class="index-info">
-                    <div class="name">${item.name}</div>
-                    <div class="reward">Награда: ${item.reward} ₽</div>
+            <div class="collection-card ${collected ? 'collected' : ''}" onclick="tryClaim('${item.id}')">
+                <div class="rarity">${item.rarity}</div>
+                <div class="img-wrap">
+                    <img src="${item.image}" alt="${item.name}">
+                    ${!collected ? '<div class="not-collected">НЕ СОБРАН</div>' : ''}
                 </div>
-                <button class="index-btn" ${canCollect ? '' : 'disabled'} onclick="claimReward('${item.id}')">
-                    ${collected ? '✓ Получено' : (canCollect ? 'Забрать' : 'Не собран')}
-                </button>
+                <div class="bottom">${item.name}</div>
             </div>
         `;
     }).join('');
 }
 
-function claimReward(itemId) {
+function tryClaim(itemId) {
     const item = ITEMS.find(i => i.id === itemId);
     if (!item) return;
-    if (collectedIndex.includes(itemId)) return;
-    if (!inventory.some(i => i.id === itemId)) return;
-
+    if (collectedIndex.includes(itemId)) {
+        alert('Вы уже получили награду за ' + item.name);
+        return;
+    }
+    if (!inventory.some(i => i.id === itemId)) {
+        alert('Сначала получите ' + item.name + ' из сундука');
+        return;
+    }
     collectedIndex.push(itemId);
     balance += item.reward;
     updateBalance();
-    renderIndex();
+    renderCollection();
     alert('Вам начислено ' + item.reward + ' ₽!');
 }
 
@@ -358,14 +460,4 @@ function setTheme(theme) {
     document.getElementById('themeDark').classList.remove('active');
     if (theme === 'light') {
         body.classList.add('light');
-        document.getElementById('themeLight').classList.add('active');
-    } else {
-        body.classList.remove('light');
-        document.getElementById('themeDark').classList.add('active');
-    }
-}
-
-updateBalance();
-</script>
-</body>
-</html>
+        document.getElementById
