@@ -116,8 +116,8 @@ body.light .theme-toggle { background: #e0e0e0; }
         <div class="setting-row">
             <div class="setting-label">Тема</div>
             <div class="theme-toggle">
-                <button class="theme-btn active" id="themeLight" onclick="setTheme('light')">Светлая</button>
-                <button class="theme-btn" id="themeDark" onclick="setTheme('dark')">Тёмная</button>
+                <button class="theme-btn" id="themeLight" onclick="setTheme('light')">Светлая</button>
+                <button class="theme-btn active" id="themeDark" onclick="setTheme('dark')">Тёмная</button>
             </div>
         </div>
         <div class="setting-row">
@@ -191,14 +191,18 @@ function save() { localStorage.setItem('skupchik_save', JSON.stringify(state)); 
 
 function load() {
     const raw = localStorage.getItem('skupchik_save');
-    if (raw) { try { state = { ...state, ...JSON.parse(raw) }; } catch(e) {} }
+    if (raw) {
+        try { state = { ...state, ...JSON.parse(raw) }; } catch (e) {}
+    }
     updateBalance();
-    if (state.theme === 'light') setTheme('light');
+    setTheme(state.theme || 'dark');
     document.getElementById('sfxVolume').value = state.sfxVolume;
     document.getElementById('musicVolume').value = state.musicVolume;
 }
 
-function updateBalance() { document.getElementById('balanceValue').textContent = state.balance; }
+function updateBalance() {
+    document.getElementById('balanceValue').textContent = state.balance;
+}
 
 function setTheme(theme) {
     state.theme = theme;
@@ -287,24 +291,38 @@ function openInventory() {
     openModal('inventoryModal');
 }
 
+function openIndex() {
+    switchInvTab('col');
+    renderInventory();
+    renderCollection();
+    openModal('inventoryModal');
+}
+
 function switchInvTab(tab) {
-    document.getElementById('tabInv').classList.remove('active');
-    document.getElementById('tabCol').classList.remove('active');
+    const tabInv = document.getElementById('tabInv');
+    const tabCol = document.getElementById('tabCol');
+    const invView = document.getElementById('invView');
+    const colView = document.getElementById('colView');
+
+    tabInv.classList.remove('active');
+    tabCol.classList.remove('active');
+
     if (tab === 'inv') {
-        document.getElementById('tabInv').classList.add('active');
-        document.getElementById('invView').style.display = 'block';
-        document.getElementById('colView').style.display = 'none';
+        tabInv.classList.add('active');
+        invView.style.display = 'block';
+        colView.style.display = 'none';
     } else {
-        document.getElementById('tabCol').classList.add('active');
-        document.getElementById('invView').style.display = 'none';
-        document.getElementById('colView').style.display = 'block';
+        tabCol.classList.add('active');
+        invView.style.display = 'none';
+        colView.style.display = 'block';
     }
 }
 
 function renderInventory() {
     const view = document.getElementById('invView');
     if (state.inventory.length === 0) {
-        view.innerHTML = '<div class="empty" style="grid-column:1/-1;">Инвентарь пуст. Открой сундук!</div>';
+        view.className = '';
+        view.innerHTML = '<div class="empty">Инвентарь пуст. Открой сундук!</div>';
         return;
     }
     view.className = 'inv-grid';
@@ -319,8 +337,33 @@ function renderInventory() {
     `).join('');
 }
 
+function renderCollection() {
+    const grid = document.getElementById('collectionGrid');
+    const progressEl = document.getElementById('collectionProgress');
+    if (!grid) return;
+
+    const total = ITEMS.length;
+    const collectedCount = state.collected.length;
+    progressEl.textContent = collectedCount + '/' + total;
+
+    grid.innerHTML = ITEMS.map(item => {
+        const isCollected = state.collected.includes(item.id);
+        return `
+            <div class="collection-card ${isCollected ? 'collected' : ''}">
+                <div class="rarity">${item.rarity || 'Обычный'}</div>
+                <div class="img-wrap">
+                    <img src="${item.image}" alt="${item.name}">
+                    <div class="not-collected">НЕ СОБРАНО</div>
+                </div>
+                <div class="bottom">${item.name}</div>
+            </div>
+        `;
+    }).join('');
+}
+
 function openSell(index) {
     const item = state.inventory[index];
+    if (!item) return;
     const slider = document.getElementById('priceSlider');
     slider.min = item.minPrice;
     slider.max = item.maxPrice;
@@ -335,6 +378,7 @@ function openSell(index) {
 
 function fastSell(index) {
     const item = state.inventory[index];
+    if (!item) return;
     const price = Math.round((item.minPrice + item.maxPrice) / 2);
     state.balance += price;
     state.inventory.splice(index, 1);
@@ -346,14 +390,17 @@ function fastSell(index) {
 
 function updatePriceCaption() {
     const slider = document.getElementById('priceSlider');
-    const item = state.inventory[slider.dataset.index];
+    const index = parseInt(slider.dataset.index);
+    const item = state.inventory[index];
     if (!item) return;
     const val = parseInt(slider.value);
     const caption = document.getElementById('sellCaption');
     const priceCaption = document.getElementById('priceCaption');
     document.getElementById('sellPrice').textContent = val + ' ₽';
+
     const range = item.maxPrice - item.minPrice;
-    const pos = (val - item.minPrice) / range;
+    const pos = range === 0 ? 0.5 : (val - item.minPrice) / range;
+
     if (pos < 0.35) {
         caption.textContent = 'Твоя цена ниже рынка';
         priceCaption.className = 'price-caption down';
@@ -375,11 +422,13 @@ function confirmSell() {
     const slider = document.getElementById('priceSlider');
     const index = parseInt(slider.dataset.index);
     const item = state.inventory[index];
+    if (!item) return;
     const price = parseInt(slider.value);
     state.mySales.push({ name: item.name, price: price });
     state.inventory.splice(index, 1);
     save();
     closeModal('sellModal');
+    renderInventory();
     alert('Товар выставлен на продажу за ' + price + ' ₽');
 }
 
@@ -407,19 +456,23 @@ function openChest() {
 
     if (dropped) {
         state.inventory.push({ ...dropped });
+        if (!state.collected.includes(dropped.id)) {
+            state.collected.push(dropped.id);
+        }
         save();
         alert('🎉 Выпал предмет: ' + dropped.name + '!');
+        if (document.getElementById('inventoryModal').classList.contains('open')) {
+            renderInventory();
+            renderCollection();
+        }
     } else {
+        save();
         alert('Пусто...');
     }
 }
 
-function openIndex() {
-    switchInvTab('col');
-    renderInventory();
-    renderCollection();
-    openModal('inventoryModal');
-}
-
-function renderCollection() {
-    const grid = do
+load();
+switchPage('market');
+</script>
+</body>
+</html>
