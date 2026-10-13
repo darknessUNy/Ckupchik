@@ -137,11 +137,23 @@
     .btn-buy { background: var(--success); }
     .btn-sell { background: var(--danger); }
     .btn-offer { background: var(--accent); }
+    .btn-admin { background: #8b5cf6; }
+    .btn-success { background: var(--success); }
     .btn-big:hover { opacity: 0.9; transform: scale(1.02); }
-    input[type="number"] {
+    input[type="number"], input[type="text"] {
       padding: 0.5rem; border: 1px solid var(--border);
       border-radius: 6px; width: 150px; text-align: right; color: var(--text-main); background: #111318;
     }
+    #admin-panel {
+      position: fixed; top: 20px; right: 20px; width: 320px;
+      background: var(--panel-bg); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      z-index: 2000; display: none;
+    }
+    #admin-panel.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+    .admin-form-group { margin-bottom: 1rem; }
+    .admin-label { display: block; margin-bottom: 0.3rem; color: var(--text-muted); font-size: 0.85rem; }
   </style>
 </head>
 <body>
@@ -169,6 +181,23 @@
     </div>
   </div>
 
+  <div id="admin-panel">
+    <h3 style="margin:0 0 1rem; font-size:1.1rem;">Админ-консоль</h3>
+    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
+      Пароль: *2923145687al
+    </p>
+    <div class="admin-form-group">
+      <label class="admin-label">Ник игрока</label>
+      <input type="text" id="admin-target-nick" class="form-input" placeholder="Никнейм" />
+    </div>
+    <div class="admin-form-group">
+      <label class="admin-label">Сумма (₽)</label>
+      <input type="number" id="admin-amount" class="form-input" placeholder="1000" />
+    </div>
+    <button id="admin-send" class="btn btn-big btn-success" style="width:100%;">Выдать деньги</button>
+    <p id="admin-status" style="margin-top:1rem; font-size:0.85rem;"></p>
+  </div>
+
   <header id="game-header" class="hidden">
     <div class="logo" style="font-weight:bold; font-size:1.2rem;">СКУПЩИК PRO <span id="current-user-display" style="color:var(--accent); font-size:0.9em;"></span></div>
     <div class="controls-group">
@@ -176,6 +205,7 @@
       <button id="btn-save" title="Сохранить">💾 Сохранить</button>
       <button id="btn-load" title="Загрузить">📂 Загрузить</button>
       <button id="btn-logout" title="Выйти">🚪 Выйти</button>
+      <button id="btn-admin-toggle" title="Админ">🛠 Админ</button>
     </div>
   </header>
   <div class="game-layout hidden">
@@ -225,6 +255,13 @@
     const currentMarketPrice = document.getElementById('current-market-price');
     const statusMsg = document.getElementById('status-msg');
 
+    const adminPanel = document.getElementById('admin-panel');
+    const btnAdminToggle = document.getElementById('btn-admin-toggle');
+    const adminTargetNick = document.getElementById('admin-target-nick');
+    const adminAmount = document.getElementById('admin-amount');
+    const adminSend = document.getElementById('admin-send');
+    const adminStatus = document.getElementById('admin-status');
+
     let currentUser = null;
     let isLoggedIn = false;
     let balance = 1000;
@@ -233,12 +270,22 @@
     let customOfferPrice = null;
 
     const defaultItems = [
-      { id: 'gum', name: 'Жвачка', baseBuy: 500, baseSell: 700, stock: 100, owned: 0, volatility: 0.4 },
-      { id: 'coffee', name: 'Стакан кофе', baseBuy: 1200, baseSell: 1600, stock: 50, owned: 0, volatility: 0.3 },
-      { id: 'book', name: 'Популярная книга', baseBuy: 2500, baseSell: 3200, stock: 20, owned: 0, volatility: 0.25 },
-      { id: 'headphones', name: 'Проводные наушники', baseBuy: 3000, baseSell: 4500, stock: 30, owned: 0, volatility: 0.3 },
-      { id: 'phone', name: 'iPhone 12 (б/у)', baseBuy: 45000, baseSell: 55000, stock: 3, owned: 0, volatility: 0.15 },
-      { id: 'laptop', name: 'Ноутбук для учебы', baseBuy: 65000, baseSell: 80000, stock: 5, owned: 0, volatility: 0.12 }
+      { id: 'gum', name: 'Жвачка', baseBuy: 25, baseSell: 35, stock: 500, owned: 0, volatility: 0.05 },
+            { id: 'coffee', name: 'Стакан кофе', baseBuy: 180, baseSell: 260, stock: 200, owned: 0, volatility: 0.08 },
+      { id: 'phone_old', name: 'Старый смартфон', baseBuy: 4500, baseSell: 5800, stock: 80, owned: 0, volatility: 0.12 },
+      { id: 'laptop_used', name: 'Б/у ноутбук', baseBuy: 22000, baseSell: 29000, stock: 30, owned: 0, volatility: 0.10 },
+      { id: 'headphones', name: 'Беспроводные наушники', baseBuy: 3200, baseSell: 4300, stock: 120, owned: 0, volatility: 0.11 },
+      { id: 'watch_casual', name: 'Наручные часы (простые)', baseBuy: 1500, baseSell: 2300, stock: 90, owned: 0, volatility: 0.13 },
+      { id: 'tablet_mid', name: 'Планшет средней модели', baseBuy: 11000, baseSell: 14500, stock: 40, owned: 0, volatility: 0.09 },
+      { id: 'powerbank', name: 'Powerbank 20000 mAh', baseBuy: 1300, baseSell: 1900, stock: 150, owned: 0, volatility: 0.07 },
+      { id: 'keyboard_mech', name: 'Механическая клавиатура', baseBuy: 4800, baseSell: 6500, stock: 60, owned: 0, volatility: 0.10 },
+      { id: 'mouse_gaming', name: 'Игровая мышь', baseBuy: 2100, baseSell: 3100, stock: 100, owned: 0, volatility: 0.12 },
+      { id: 'backpack_urban', name: 'Городской рюкзак', baseBuy: 2700, baseSell: 3800, stock: 70, owned: 0, volatility: 0.08 },
+      { id: 'sunglasses', name: 'Солнцезащитные очки', baseBuy: 900, baseSell: 1400, stock: 180, owned: 0, volatility: 0.14 },
+      { id: 'tshirt_brand', name: 'Футболка брендовая', baseBuy: 1600, baseSell: 2400, stock: 250, owned: 0, volatility: 0.06 },
+      { id: 'jeans_premium', name: 'Джинсы премиум', baseBuy: 4200, baseSell: 5900, stock: 50, owned: 0, volatility: 0.09 },
+      { id: 'camera_compact', name: 'Компактная камера', baseBuy: 8500, baseSell: 11500, stock: 35, owned: 0, volatility: 0.11 },
+      { id: 'drone_mini', name: 'Мини‑дрон', baseBuy: 7200, baseSell: 9800, stock: 45, owned: 0, volatility: 0.13 }
     ];
 
     function getUsers() {
@@ -250,37 +297,10 @@
       localStorage.setItem('scupshik_users', JSON.stringify(users));
     }
 
-    function showAuthMessage(text, isError = true) {
+    function showAuthMessage(text, isError) {
       authMsg.textContent = text;
       authMsg.className = isError ? 'msg-error' : 'msg-success';
     }
-
-    btnLogin.addEventListener('click', () => {
-      const nick = loginInput.value.trim();
-      const pass = passwordInput.value.trim();
-
-      if (!nick || !pass) {
-        showAuthMessage('Ник и пароль обязательны', true);
-        return;
-      }
-
-      const users = getUsers();
-
-      if (!users[nick]) {
-        showAuthMessage('Аккаунт не найден. Создайте новый.', true);
-        return;
-      }
-
-      if (users[nick].password !== pass) {
-        showAuthMessage('Неверный пароль', true);
-        return;
-      }
-
-      currentUser = nick;
-      isLoggedIn = true;
-      loadGameData();
-      switchToGame();
-    });
 
     btnRegister.addEventListener('click', () => {
       const nick = loginInput.value.trim();
@@ -290,7 +310,8 @@
         showAuthMessage('Ник и пароль обязательны', true);
         return;
       }
-            const users = getUsers();
+
+      const users = getUsers();
 
       if (users[nick]) {
         showAuthMessage('Такой ник уже занят', true);
@@ -307,12 +328,38 @@
       showAuthMessage('Аккаунт создан! Теперь войдите', false);
     });
 
+    btnLogin.addEventListener('click', () => {
+      const nick = loginInput.value.trim();
+      const pass = passwordInput.value.trim();
+
+      if (!nick || !pass) {
+        showAuthMessage('Введите ник и пароль', true);
+        return;
+      }
+
+      const users = getUsers();
+      const user = users[nick];
+
+      if (!user || user.password !== pass) {
+        showAuthMessage('Неверный ник или пароль', true);
+        return;
+      }
+
+      currentUser = nick;
+      isLoggedIn = true;
+      balance = user.balance;
+      itemsData = user.items;
+
+      switchToGame();
+    });
+
     function switchToGame() {
       authScreen.classList.add('hidden');
       gameHeader.classList.remove('hidden');
       gameLayout.classList.remove('hidden');
       currentUserDisplay.textContent = currentUser;
       renderMarket();
+      loadGameData();
     }
 
     function loadGameData() {
@@ -354,6 +401,45 @@
       passwordInput.value = '';
     });
 
+    btnAdminToggle.addEventListener('click', () => {
+      adminPanel.classList.toggle('active');
+    });
+
+    const ADMIN_PASSWORD = '*2923145687al';
+
+    adminSend.addEventListener('click', () => {
+      const inputPass = prompt('Введите админ‑пароль:');
+
+      if (inputPass !== ADMIN_PASSWORD) {
+        adminStatus.textContent = 'Неверный пароль!';
+        adminStatus.style.color = var(--danger);
+        return;
+      }
+
+      const targetNick = adminTargetNick.value.trim();
+      const amount = parseInt(adminAmount.value, 10);
+
+      if (!targetNick || isNaN(amount) || amount <= 0) {
+        adminStatus.textContent = 'Проверьте ник и сумму!';
+        adminStatus.style.color = var(--danger);
+        return;
+      }
+
+      const users = getUsers();
+      if (!users[targetNick]) {
+        adminStatus.textContent = 'Игрок не найден!';
+        adminStatus.style.color = var(--danger);
+        return;
+      }
+
+      users[targetNick].balance += amount;
+      saveUsers(users);
+
+      adminStatus.textContent = `Выдано ${amount.toLocaleString()} ₽ игроку ${targetNick}`;
+      adminStatus.style.color = var(--success);
+      setTimeout(() => adminStatus.textContent = '', 3000);
+    });
+
     function renderMarket() {
       marketList.innerHTML = '';
       itemsData.forEach(item => {
@@ -388,13 +474,18 @@
 
       const points = [];
       let currentPrice = item.baseSell;
+
       for (let i = 0; i < 20; i++) {
-        currentPrice += (Math.random() - 0.5) * item.volatility * 200;
-        if (currentPrice < item.baseBuy * 0.8) currentPrice = item.baseBuy * 0.8;
+        const change = (Math.random() - 0.5) * 2 * item.volatility * currentPrice;
+        currentPrice += change;
+
+        if (currentPrice < item.baseBuy * 0.7) currentPrice = item.baseBuy * 0.7;
+        if (currentPrice > item.baseSell * 1.3) currentPrice = item.baseSell * 1.3;
+
         points.push(currentPrice);
       }
 
-      const width = container.clientWidth;
+      const width = container.clientWidth || 600;
       const height = 240;
       const padding = 40;
       const xStep = (width - padding * 2) / 19;
