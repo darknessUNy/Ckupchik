@@ -47,6 +47,20 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px;
 .price-caption.normal { color: #00aaff; }
 .big-btn { width: 100%; padding: 18px; background: #00aaff; color: white; border: none; border-radius: 15px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 20px; }
 .big-btn:hover { background: #0091ea; }
+.items-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.item-card { background: white; border-radius: 15px; padding: 12px; cursor: pointer; transition: transform 0.2s; text-align: center; }
+.item-card:hover { transform: scale(1.03); }
+.item-card img { width: 100%; height: 100px; object-fit: contain; margin-bottom: 8px; }
+.item-card .item-name { color: #1e1e1e; font-weight: bold; font-size: 14px; }
+.item-card .item-price { color: #00aaff; font-size: 13px; margin-top: 4px; }
+.empty-inv { color: #666; padding: 40px 0; text-align: center; grid-column: 1 / -1; }
+.index-card { background: #1e1e1e; border-radius: 15px; padding: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 15px; }
+.index-card img { width: 60px; height: 60px; object-fit: contain; background: white; border-radius: 12px; padding: 5px; }
+.index-info { flex: 1; text-align: left; }
+.index-info .name { font-weight: bold; font-size: 16px; }
+.index-info .reward { color: #ff8c1a; font-size: 14px; margin-top: 4px; }
+.index-btn { background: #00c853; color: white; border: none; padding: 10px 16px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 14px; }
+.index-btn:disabled { background: #3a3a3a; color: #777; cursor: default; }
 body.light { background: #f0f0f0; color: #1e1e1e; }
 body.light .topbar, body.light .bottombar { background: #ffffff; }
 body.light .btn-round { background: #1e1e1e; color: white; }
@@ -55,6 +69,8 @@ body.light .tab { background: #e0e0e0; color: #666; }
 body.light .modal-content { background: #ffffff; color: #1e1e1e; }
 body.light .setting-row { border-bottom-color: #e0e0e0; }
 body.light .theme-toggle { background: #e0e0e0; }
+body.light .item-card { background: #ffffff; border: 1px solid #e0e0e0; }
+body.light .index-card { background: #f0f0f0; }
 </style>
 </head>
 <body>
@@ -71,13 +87,13 @@ body.light .theme-toggle { background: #e0e0e0; }
 
 <div class="content">
     <div id="marketContent" class="empty">Тут будут предметы из маркета.</div>
-    <div id="mySalesContent" class="empty" style="display:none;">У вас пока нет продаж. Нажмите «+», чтобы выставить предмет.</div>
+    <div id="mySalesContent" class="empty" style="display:none;">У вас пока нет продаж.</div>
 </div>
 
 <div class="bottombar">
     <button class="bottom-btn" onclick="openInventory()">💼</button>
     <button class="bottom-btn chest-btn" onclick="openChest()">🎁</button>
-    <button class="bottom-btn" onclick="alert('Чат в разработке')">💬</button>
+    <button class="bottom-btn" onclick="openIndex()">⚡</button>
 </div>
 
 <div class="modal" id="settingsModal">
@@ -105,7 +121,7 @@ body.light .theme-toggle { background: #e0e0e0; }
 <div class="modal" id="inventoryModal">
     <div class="modal-content">
         <div class="modal-title">Инвентарь</div>
-        <div id="inventoryContent"></div>
+        <div id="inventoryGrid" class="items-grid"></div>
         <button class="big-btn" onclick="closeModal('inventoryModal')">Закрыть</button>
     </div>
 </div>
@@ -127,6 +143,14 @@ body.light .theme-toggle { background: #e0e0e0; }
     </div>
 </div>
 
+<div class="modal" id="indexModal">
+    <div class="modal-content">
+        <div class="modal-title">⚡ Индекс</div>
+        <div id="indexContent"></div>
+        <button class="big-btn" onclick="closeModal('indexModal')">Закрыть</button>
+    </div>
+</div>
+
 <script>
 const ITEMS = [
     {
@@ -136,7 +160,7 @@ const ITEMS = [
         minPrice: 10,
         maxPrice: 250,
         marketPrice: 100,
-        chance: 100
+        reward: 250
     }
 ];
 
@@ -145,15 +169,14 @@ const CHESTS = [
         id: 'school',
         name: 'Школьный сундук',
         price: 100,
-        drops: [
-            { itemId: 'pencil', chance: 100 }
-        ]
+        drops: [{ itemId: 'pencil', chance: 100 }]
     }
 ];
 
 let balance = 1000;
+let inventory = [];
 let mySales = [];
-let currentItemIndex = 0;
+let collectedIndex = [];
 
 function updateBalance() { document.getElementById('balanceValue').textContent = balance; }
 
@@ -168,7 +191,7 @@ function switchTab(tab, btn) {
 function renderMySales() {
     const el = document.getElementById('mySalesContent');
     if (mySales.length === 0) {
-        el.innerHTML = 'У вас пока нет продаж. Нажмите «+», чтобы выставить предмет.';
+        el.innerHTML = 'У вас пока нет продаж.';
         el.className = 'empty';
     } else {
         el.className = '';
@@ -188,27 +211,33 @@ function removeSale(index) { mySales.splice(index, 1); renderMySales(); }
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-function openInventory() { currentItemIndex = 0; renderInventory(); openModal('inventoryModal'); }
-
-function renderInventory() {
-    const item = ITEMS[currentItemIndex];
-    document.getElementById('inventoryContent').innerHTML = `
-        <div style="text-align:center; margin-bottom:20px;">
-            <img src="${item.image}" alt="${item.name}" style="width:150px; height:150px; object-fit:contain; margin-bottom:10px;">
-            <div style="font-size:20px; font-weight:bold;">${item.name}</div>
-            <div style="color:#888; margin-top:5px;">Рыночная цена: ${item.marketPrice} ₽</div>
-        </div>
-        <button class="big-btn" onclick="openSell()">Выставить на продажу</button>
-        <button class="big-btn" style="background:#00c853; margin-top:10px;" onclick="instantSell()">Продать за ${item.marketPrice} ₽</button>
-    `;
+function openInventory() {
+    renderInventory();
+    openModal('inventoryModal');
 }
 
-function openSell() {
-    const item = ITEMS[currentItemIndex];
+function renderInventory() {
+    const grid = document.getElementById('inventoryGrid');
+    if (inventory.length === 0) {
+        grid.innerHTML = '<div class="empty-inv">Инвентарь пуст. Открой сундук!</div>';
+        return;
+    }
+    grid.innerHTML = inventory.map((item, i) => `
+        <div class="item-card" onclick="openSell(${i})">
+            <img src="${item.image}" alt="${item.name}">
+            <div class="item-name">${item.name}</div>
+            <div class="item-price">${item.marketPrice} ₽</div>
+        </div>
+    `).join('');
+}
+
+function openSell(index) {
+    const item = inventory[index];
     const slider = document.getElementById('priceSlider');
     slider.min = item.minPrice;
     slider.max = item.maxPrice;
     slider.value = item.marketPrice;
+    slider.dataset.index = index;
     document.getElementById('minPriceLabel').textContent = item.minPrice + ' ₽';
     document.getElementById('maxPriceLabel').textContent = item.maxPrice + ' ₽';
     updatePriceCaption();
@@ -217,8 +246,10 @@ function openSell() {
 }
 
 function updatePriceCaption() {
-    const item = ITEMS[currentItemIndex];
-    const val = parseInt(document.getElementById('priceSlider').value);
+    const slider = document.getElementById('priceSlider');
+    const item = inventory[slider.dataset.index];
+    if (!item) return;
+    const val = parseInt(slider.value);
     const caption = document.getElementById('sellCaption');
     const priceCaption = document.getElementById('priceCaption');
     document.getElementById('sellPrice').textContent = val + ' ₽';
@@ -242,19 +273,14 @@ function updatePriceCaption() {
 document.getElementById('priceSlider').addEventListener('input', updatePriceCaption);
 
 function confirmSell() {
-    const item = ITEMS[currentItemIndex];
-    const price = parseInt(document.getElementById('priceSlider').value);
+    const slider = document.getElementById('priceSlider');
+    const index = parseInt(slider.dataset.index);
+    const item = inventory[index];
+    const price = parseInt(slider.value);
     mySales.push({ name: item.name, price: price });
+    inventory.splice(index, 1);
     closeModal('sellModal');
     alert('Товар выставлен на продажу за ' + price + ' ₽');
-}
-
-function instantSell() {
-    const item = ITEMS[currentItemIndex];
-    balance += item.marketPrice;
-    updateBalance();
-    closeModal('inventoryModal');
-    alert('Продано за ' + item.marketPrice + ' ₽');
 }
 
 function openChest() {
@@ -280,10 +306,50 @@ function openChest() {
     }
 
     if (dropped) {
+        inventory.push({ ...dropped });
         alert('🎉 Выпал предмет: ' + dropped.name + '!');
     } else {
         alert('Пусто...');
     }
+}
+
+function openIndex() {
+    renderIndex();
+    openModal('indexModal');
+}
+
+function renderIndex() {
+    const el = document.getElementById('indexContent');
+    el.innerHTML = ITEMS.map(item => {
+        const collected = collectedIndex.includes(item.id);
+        const inInventory = inventory.some(i => i.id === item.id);
+        const canCollect = inInventory && !collected;
+        return `
+            <div class="index-card">
+                <img src="${item.image}" alt="${item.name}">
+                <div class="index-info">
+                    <div class="name">${item.name}</div>
+                    <div class="reward">Награда: ${item.reward} ₽</div>
+                </div>
+                <button class="index-btn" ${canCollect ? '' : 'disabled'} onclick="claimReward('${item.id}')">
+                    ${collected ? '✓ Получено' : (canCollect ? 'Забрать' : 'Не собран')}
+                </button>
+            </div>
+        `;
+    }).join('');
+}
+
+function claimReward(itemId) {
+    const item = ITEMS.find(i => i.id === itemId);
+    if (!item) return;
+    if (collectedIndex.includes(itemId)) return;
+    if (!inventory.some(i => i.id === itemId)) return;
+
+    collectedIndex.push(itemId);
+    balance += item.reward;
+    updateBalance();
+    renderIndex();
+    alert('Вам начислено ' + item.reward + ' ₽!');
 }
 
 function setTheme(theme) {
