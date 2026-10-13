@@ -3,266 +3,337 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Скупщик: игра про торговлю</title>
+    <title>Скупщик PRO</title>
     <style>
       :root {
-        --primary: #3b82f6;
-        --dark: #1f2937;
-        --light: #f3f4f6;
-        --bg-card: #ffffff;
-        --danger: #ef4444;
+        --bg-color: #f0f2f5;
+        --panel-bg: #ffffff;
+        --text-main: #1e293b;
+        --text-muted: #64748b;
+        --accent: #3b82f6;
         --success: #10b981;
+        --danger: #ef4444;
+        --border: #e2e8f0;
       }
 
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-
-      body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        color: var(--dark);
-        background-color: var(--light);
-        line-height: 1.6;
+      body.dark-mode {
+        --bg-color: #1e1e2e;
+        --panel-bg: #272735;
+        --text-main: #f1f5f9;
+        --text-muted: #94a3b8;
+        --border: #333344;
       }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+      
+      body { background-color: var(--bg-color); color: var(--text-main); transition: background 0.3s, color 0.3s; }
 
       header {
-        background: var(--bg-card);
-        padding: 1rem 2rem;
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-      }
-
-      nav a {
-        margin-right: 1.5rem;
-        text-decoration: none;
-        color: var(--dark);
-        font-weight: 500;
-        transition: color 0.2s;
-      }
-      nav a:hover { color: var(--primary); }
-
-      main { padding: 2rem; max-width: 1200px; margin: 0 auto; }
-
-      .hero {
-        text-align: center;
-        padding: 3rem 1rem;
-        background: var(--bg-card);
-        border-radius: 12px;
-        margin-bottom: 2.5rem;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-      }
-      .hero h1 { font-size: 2.75rem; margin-bottom: 0.5rem; color: var(--dark); }
-      .hero p { font-size: 1.125rem; color: #555; }
-
-      #game-container {
-        max-width: 960px;
-        margin: 0 auto;
-        background: var(--bg-card);
-        padding: 1.5rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      }
-
-      #ui-panel {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        flex-wrap: wrap;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid #e5e7eb;
+        padding: 1rem 2rem;
+        background: var(--panel-bg);
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 0;
+        z-index: 100;
       }
 
-      #balance-display {
-        font-size: 1.25rem;
-        font-weight: bold;
-        color: var(--dark);
-      }
-
-      #next-day-btn {
-        padding: 0.6rem 1.2rem;
-        background: var(--primary);
-        color: white;
-        border: none;
+      .controls-group button {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-main);
+        padding: 0.5rem 1rem;
         border-radius: 6px;
         cursor: pointer;
-        font-weight: 600;
-        transition: background 0.2s;
+        margin-right: 0.5rem;
+        transition: all 0.2s;
+        display: flex; align-items: center; gap: 0.5rem;
       }
-      #next-day-btn:hover { background: #2563eb; }
+      .controls-group button:hover { background: var(--accent); color: white; border-color: var(--accent); }
+      .btn-active { background: var(--success); color: white; }
 
-      table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-      th, td { border: 1px solid #e5e7eb; padding: 0.75rem; text-align: left; }
-      th { background: #f8fafc; color: #4b5563; font-weight: 600; }
-      tr:hover { background: #f9fafb; }
-
-      .btn-action {
-        padding: 0.4rem 0.8rem;
-        cursor: pointer;
-        border: 1px solid #9ca3af;
-        background: white;
-        border-radius: 4px;
-        font-size: 0.9rem;
-      }
-      .btn-action:hover { background: #f3f4f6; }
-      .btn-buy { color: var(--success); }
-      .btn-sell { color: var(--danger); }
-
-      footer {
-        text-align: center;
+      .game-layout {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 20px;
         padding: 2rem;
-        color: #6b7280;
-        margin-top: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .sidebar-panel {
+        background: var(--panel-bg);
+        border-radius: 12px;
+        padding: 1.5rem;
+        height: calc(100vh - 120px);
+        overflow-y: auto;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      }
+      
+      .item-card {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        background: #fff;
+        cursor: pointer;
+        transition: transform 0.1s, box-shadow 0.2s;
+      }
+      .item-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+      .item-card.selected { border-color: var(--accent); background: #eff6ff; }
+      
+      .item-info h3 { color: var(--text-main); margin-bottom: 0.5rem; }
+      .item-price { font-weight: bold; color: var(--text-muted); margin-bottom: 0.5rem; display: block; }
+      .item-stats { font-size: 0.85rem; color: var(--text-muted); }
+
+      .main-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .graph-container {
+        background: var(--panel-bg);
+        border-radius: 12px;
+        padding: 1.5rem;
+        min-height: 250px;
+        position: relative;
+        border: 1px solid var(--border);
+      }
+      #price-chart { width: 100%; height: 200px; }
+      .chart-placeholder { text-align: center; padding: 50px; color: var(--text-muted); font-style: italic; }
+
+      .actions-panel {
+        background: var(--panel-bg);
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid var(--border);
+      }
+      .balance-display { font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: var(--text-main); }
+      
+      .action-buttons { display: flex; gap: 1rem; flex-wrap: wrap; }
+      .btn-big {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        border: none;
+        font-weight: 600;
+      }
+      .btn-buy { background: var(--success); color: white; }
+      .btn-sell { background: var(--danger); color: white; }
+      .btn-offer { background: var(--accent); color: white; }
+      .btn-big:hover { opacity: 0.9; transform: scale(1.02); }
+
+      input[type="number"] {
+        padding: 0.5rem;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        width: 150px;
+        text-align: right;
       }
     </style>
   </head>
   <body>
+
     <header>
-      <nav>
-        <a href="#">Главная</a>
-        <a href="#game">Игра</a>
-        <a href="#about">О проекте</a>
-      </nav>
+      <div class="logo">СКУПЩИК PRO</div>
+      <div class="controls-group">
+        <button id="btn-theme" title="Тема">🌙 Тема (Светлая)</button>
+        <button id="btn-sfx" class="btn-active" title="Звуки">🔊 SFX (Вкл)</button>
+        <button id="btn-music" title="Музыка">🎵 Джаз (Выкл)</button>
+      </div>
     </header>
 
-    <main>
-      <section id="home" class="hero">
-        <h1>Скупщик</h1>
-        <p>Покупай дешевле, продавай дороже. Следи за рынком и наращивай капитал!</p>
-      </section>
+    <div class="game-layout">
+      <aside class="sidebar-panel">
+        <h2 style="margin-bottom: 1.5rem;">Склад / Рынок</h2>
+        <div id="market-list"></div>
+      </aside>
 
-      <section id="game">
-        <div id="game-container">
-          <h2 style="margin-bottom:1rem;">Игровой процесс</h2>
+      <main class="main-panel">
+        <div class="balance-display">Баланс: <span id="balance-val">10 000</span> ₽</div>
+
+        <div class="graph-container">
+          <h3 style="margin-bottom:1rem;">Динамика цены</h3>
+          <div id="chart-area" class="chart-placeholder">Выберите предмет, чтобы увидеть график</div>
+        </div>
+
+        <div class="actions-panel">
+          <h3>Действия</h3>
+          <p id="selected-item-name" style="font-weight:bold; margin: 1rem 0; color:var(--text-main);">Ничего не выбрано</p>
           
-          <div id="ui-panel">
-            <div id="balance-display">Баланс: 1 000 ₽</div>
-            <button id="next-day-btn">Следующий день (обновить цены)</button>
+          <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1rem;">
+            <span>Рыночная цена:</span>
+            <strong id="current-market-price">0 ₽</strong>
           </div>
 
-          <table>
-            <thead>
-              <tr>
-                <th>Предмет</th>
-                <th>Цена покупки</th>
-                <th>Цена продажи</th>
-                <th>На рынке</th>
-                <th>У тебя</th>
-                <th>Действия</th>
-              </tr>
-            </thead>
-            <tbody id="items-body"></tbody>
-          </table>
+          <div class="action-buttons">
+            <button class="btn-big btn-buy" onclick="performAction('buy')">Купить по рынку</button>
+            <button class="btn-big btn-sell" onclick="performAction('sell')">Продать по рынку</button>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <input type="number" id="custom-price" placeholder="Ваша цена" min="1">
+              <button class="btn-big btn-offer" onclick="performAction('offer')">Выставить свою цену</button>
+            </div>
+          </div>
+          
+          <p id="status-msg" style="margin-top:1rem; font-size:0.9rem;"></p>
         </div>
-      </section>
-
-      <section id="about" style="margin-top:2rem;">
-        <h2>О проекте</h2>
-        <p>Это простая браузерная игра-симулятор скупщика. Всё работает прямо в браузере без установки.</p>
-        <p>Код полностью открыт — можно менять цены, добавлять товары и выкладывать на GitHub.</p>
-      </section>
-    </main>
-
-    <footer>
-      <p>&copy; 2024 Скупщик. Все права защищены.</p>
-    </footer>
+      </main>
+    </div>
 
     <script>
-      // Данные игры
-      const items = [
-        { id: 'phone', name: 'Старый смартфон', baseBuy: 300, baseSell: 500, stock: 5, owned: 0 },
-        { id: 'laptop', name: 'Ноутбук б/у', baseBuy: 2000, baseSell: 3500, stock: 3, owned: 0 },
-        { id: 'watch', name: 'Часы механические', baseBuy: 400, baseSell: 700, stock: 6, owned: 0 },
-        { id: 'headphones', name: 'Наушники', baseBuy: 250, baseSell: 450, stock: 8, owned: 0 },
-        { id: 'camera', name: 'Фотоаппарат', baseBuy: 1200, baseSell: 2200, stock: 2, owned: 0 },
+      const itemsData = [
+        { id: 'phone', name: 'iPhone 12', baseBuy: 45000, baseSell: 55000, stock: 3, owned: 0, volatility: 0.15 },
+        { id: 'laptop', name: 'MacBook Air M1', baseBuy: 80000, baseSell: 95000, stock: 2, owned: 0, volatility: 0.1 },
+        { id: 'watch', name: 'Rolex Submariner', baseBuy: 500000, baseSell: 620000, stock: 1, owned: 0, volatility: 0.08 },
+        { id: 'headphones', name: 'Sony WH-1000XM4', baseBuy: 25000, baseSell: 32000, stock: 5, owned: 0, volatility: 0.2 },
+        { id: 'camera', name: 'Canon EOS R6', baseBuy: 180000, baseSell: 210000, stock: 2, owned: 0, volatility: 0.12 },
+        { id: 'bike', name: 'Горный велосипед', baseBuy: 30000, baseSell: 40000, stock: 4, owned: 0, volatility: 0.18 },
+        { id: 'console', name: 'PlayStation 5', baseBuy: 45000, baseSell: 58000, stock: 3, owned: 0, volatility: 0.14 },
+        { id: 'drone', name: 'DJI Mini 3', baseBuy: 70000, baseSell: 85000, stock: 2, owned: 0, volatility: 0.16 },
       ];
 
-      let balance = 1000;
+      let balance = 10000;
+      let selectedItemId = null;
+      let chartData = [];
+      let isSfxOn = true;
+      let isMusicOn = false;
       
-      // Элементы DOM
-      const balanceEl = document.getElementById('balance-display');
-      const bodyEl = document.getElementById('items-body');
-      const nextDayBtn = document.getElementById('next-day-btn');
+      const marketListEl = document.getElementById('market-list');
+      const balanceEl = document.getElementById('balance-val');
+      const statusMsgEl = document.getElementById('status-msg');
+      const selectedNameEl = document.getElementById('selected-item-name');
+      const currentPriceEl = document.getElementById('current-market-price');
+      const customPriceInput = document.getElementById('custom-price');
 
-      // Функция отрисовки таблицы
-      function render() {
-        balanceEl.textContent = `Баланс: ${balance.toLocaleString()} ₽`;
-        bodyEl.innerHTML = '';
+      document.getElementById('btn-theme').addEventListener('click', toggleTheme);
+      document.getElementById('btn-sfx').addEventListener('click', toggleSFX);
+      document.getElementById('btn-music').addEventListener('click', playMusic);
 
-        items.forEach(item => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td><strong>${item.name}</strong></td>
-            <td>${item.buyPrice.toLocaleString()} ₽</td>
-            <td style="color:var(--success)">${item.sellPrice.toLocaleString()} ₽</td>
-            <td>${item.stock}</td>
-            <td>${item.owned}</td>
-            <td>
-              <button class="btn-action btn-buy" data-type="buy" data-id="${item.id}">Купить</button>
-              <button class="btn-action btn-sell" data-type="sell" data-id="${item.id}">Продать</button>
-            </td>
+      function init() {
+        renderMarket();
+        updatePricesLoop();
+      }
+
+      function renderMarket() {
+        marketListEl.innerHTML = '';
+        itemsData.forEach(item => {
+          const card = document.createElement('div');
+          card.className = `item-card ${selectedItemId === item.id ? 'selected' : ''}`;
+          card.onclick = () => selectItem(item.id);
+          
+          const ownedClass = item.owned > 0 ? 'style="color:var(--success)"' : '';
+          card.innerHTML = `
+            <div class="item-info">
+              <h3>${item.name}</h3>
+              <span class="item-price">Рынок: ~${item.baseSell.toLocaleString()} ₽</span>
+              <div class="item-stats">
+                На рынке: ${item.stock} | У вас: <b ${ownedClass}>${item.owned}</b>
+              </div>
+            </div>
           `;
-          bodyEl.appendChild(tr);
+          marketListEl.appendChild(card);
         });
       }
 
-      // Обновление цен (случайные колебания)
-      function updatePrices() {
-        items.forEach(i => {
-          // Цены меняются на ±20% каждый день
-          const factor = 0.8 + Math.random() * 0.4;
-          i.buyPrice = Math.round(i.baseBuy * factor);
-          i.sellPrice = Math.round(i.baseSell * factor);
-        });
-        render();
-      }
-
-      // Инициализация начальных цен
-      items.forEach(i => {
-        i.buyPrice = i.baseBuy;
-        i.sellPrice = i.baseSell;
-      });
-
-      // Обработчик кнопки "Следующий день"
-      nextDayBtn.addEventListener('click', () => {
-        updatePrices();
-      });
-
-      // Обработчики покупок и продаж
-      bodyEl.addEventListener('click', e => {
-        const btn = e.target.closest('.btn-action');
-        if (!btn) return;
-
-        const id = btn.dataset.id;
-        const type = btn.dataset.type;
-        const item = items.find(i => i.id === id);
-        if (!item) return;
-
-        if (type === 'buy') {
-          if (balance >= item.buyPrice && item.stock > 0) {
-            balance -= item.buyPrice;
-            item.stock--;
-            item.owned++;
-          } else {
-            let msg = 'Недостаточно денег';
-            if (item.stock <= 0) msg = 'Товара нет в наличии';
-            alert(msg);
-          }
-        } else if (type === 'sell') {
-          if (item.owned > 0) {
-            balance += item.sellPrice;
-            item.stock++;
-            item.owned--;
-          } else {
-            alert('У вас нет этого предмета для продажи');
-          }
+      function selectItem(id) {
+        selectedItemId = id;
+        const item = itemsData.find(i => i.id === id);
+        
+        renderMarket(); 
+        
+        selectedNameEl.textContent = item.name;
+        currentPriceEl.textContent = (item.buyPrice || item.baseBuy).toLocaleString() + ' ₽';
+        customPriceInput.value = '';
+        
+        chartData = [];
+        for(let i=0; i<20; i++) {
+          chartData.push(Math.round(item.baseBuy * (0.8 + Math.random() * 0.4)));
         }
-        render();
-      });
+        drawChart(chartData);
+      }
 
-      // Первый рендер
-      render();
-    </script>
-  </body>
-</html>
+      function drawChart(data) {
+        const container = document.getElementById('chart-area');
+        container.innerHTML = '';
+
+        const canvas = document.createElement('canvas');
+        canvas.id = 'price-chart';
+        container.appendChild(canvas);
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width = container.clientWidth;
+        const h = canvas.height = 200;
+
+        if (!data.length) return;
+
+        const min = Math.min(...data);
+        const max = Math.max(...data);
+        const range = max - min;
+        const padding = 20;
+
+        ctx.fillStyle = 'transparent';
+        ctx.strokeStyle = 'var(--accent)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+
+        data.forEach((price, i) => {
+          const x = (i / (data.length - 1)) * (w - padding * 2) + padding;
+          const y = ((max - price) / range) * (h - padding * 2) + padding;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+
+        ctx.stroke();
+
+        // Подписи осей
+        ctx.fillStyle = 'var(--text-muted)';
+        ctx.font = '12px Arial';
+        ctx.textAlign = 'right';
+        ctx.fillText(max.toLocaleString(), padding - 5, padding);
+        ctx.fillText(min.toLocaleString(), padding - 5, h - padding);
+      }
+
+      function playMusic() {
+        if (isMusicOn) {
+          isMusicOn = false;
+          document.getElementById('btn-music').textContent = '🎵 Джаз (Выкл)';
+          return;
+        }
+
+        isMusicOn = true;
+        document.getElementById('btn-music').textContent = '🎵 Джаз (Играет)';
+
+        // Генерируем простой «джазовый» звук через Web Audio API (без внешних файлов)
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const audioCtx = new AudioContext();
+
+        function playNote(freq, time, dur) {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, time);
+          gain.gain.setValueAtTime(0.05, time);
+          gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
+          osc.start(time);
+          osc.stop(time + dur);
+        }
+
+        // Простая джазовая последовательность
+        playNote(392, 0, 0.3);   // G
+        playNote(440, 0.3, 0.3); // A
+        playNote(523, 0.6, 0.3); // C
+        playNote(659, 0.9, 0.3); // E
+        playNote(784, 1.2, 0.3); // G
+        playNote(659, 1.5, 0.3); // E
+        playNote(523, 1.8, 0.3); // C
+        playNote(440, 2.1, 0.3); // A
+      }
+
+      function toggleTheme() {
+        document.
