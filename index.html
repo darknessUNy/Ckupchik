@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Скупщик PRO</title>
+    <title>Скупщик PRO: Трейдинг</title>
     <style>
       :root {
         --bg-color: #f0f2f5;
@@ -14,20 +14,40 @@
         --success: #10b981;
         --danger: #ef4444;
         --border: #e2e8f0;
+        --stripe-bg: rgba(59, 130, 246, 0.08); 
       }
+
+      /* Фон с диагональными полосками */
+      body { 
+        background-color: var(--bg-color); 
+        background-image: 
+          linear-gradient(45deg, var(--stripe-bg) 25%, transparent 25%), 
+          linear-gradient(-45deg, var(--stripe-bg) 25%, transparent 25%);
+        background-size: 40px 40px;
+        color: var(--text-main); 
+        transition: background 0.3s, color 0.3s;
+        margin: 0;
+      }
+      
       body.dark-mode {
         --bg-color: #1a1b26;
         --panel-bg: #16213e;
         --text-main: #c0caf5;
         --text-muted: #8f94cb;
         --border: #333;
+        --stripe-bg: rgba(255, 255, 255, 0.05);
+        background-image: 
+          linear-gradient(45deg, var(--stripe-bg) 25%, transparent 25%), 
+          linear-gradient(-45deg, var(--stripe-bg) 25%, transparent 25%);
       }
+
       * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-      body { background-color: var(--bg-color); color: var(--text-main); transition: background 0.3s, color 0.3s; }
+      
       header {
         display: flex; justify-content: space-between; align-items: center;
         padding: 1rem 2rem; background: var(--panel-bg);
         border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
       }
       .controls-group button {
         background: transparent; border: 1px solid var(--border);
@@ -37,7 +57,9 @@
       }
       .controls-group button:hover { background: var(--accent); color: white; border-color: var(--accent); }
       .btn-active { background: var(--success) !important; color: white !important; }
+
       .game-layout { display: grid; grid-template-columns: 350px 1fr; gap: 20px; padding: 2rem; max-width: 1400px; margin: 0 auto; }
+      
       .sidebar-panel {
         background: var(--panel-bg); border-radius: 12px; padding: 1.5rem;
         height: calc(100vh - 120px); overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -52,13 +74,59 @@
       .item-info h3 { color: var(--text-main); margin-bottom: 0.5rem; }
       .item-price { font-weight: bold; color: var(--text-muted); margin-bottom: 0.5rem; display: block; }
       .item-stats { font-size: 0.85rem; color: var(--text-muted); }
+
       .main-panel { display: flex; flex-direction: column; gap: 20px; }
+      
       .graph-container {
         background: var(--panel-bg); border-radius: 12px;
-        padding: 1.5rem; min-height: 250px; position: relative;
+        padding: 1.5rem; min-height: 280px; position: relative;
         border: 1px solid var(--border);
+        overflow: hidden;
       }
       .chart-placeholder { text-align: center; padding: 50px; color: var(--text-muted); font-style: italic; }
+
+      /* Стили для точек на графике */
+      .data-point {
+        position: absolute;
+        width: 14px;
+        height: 14px;
+        background: var(--accent);
+        border: 2px solid white;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        cursor: pointer;
+        z-index: 10;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        transition: transform 0.2s, background 0.2s;
+      }
+      .data-point:hover {
+        transform: translate(-50%, -50%) scale(1.4);
+        background: var(--success);
+      }
+
+      /* Всплывающая подсказка */
+      .tooltip {
+        position: absolute;
+        top: -40px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s;
+        pointer-events: none;
+        z-index: 20;
+      }
+      .data-point:hover .tooltip {
+        opacity: 1;
+        visibility: visible;
+      }
+
       .actions-panel {
         background: var(--panel-bg); border-radius: 12px;
         padding: 1.5rem; border: 1px solid var(--border);
@@ -94,7 +162,7 @@
         <div id="market-list"></div>
       </aside>
       <main class="main-panel">
-        <div class="balance-display">Баланс: <span id="balance-val">10 000</span> ₽</div>
+        <div class="balance-display">Баланс: <span id="balance-val">1 000</span> ₽</div>
         <div class="graph-container">
           <h3 style="margin-bottom:1rem;">Динамика цены</h3>
           <div id="chart-area" class="chart-placeholder">Выберите предмет слева, чтобы увидеть график</div>
@@ -120,18 +188,31 @@
     </div>
 
     <script>
+      // --- МНОГО НОВЫХ ПРЕДМЕТОВ С РАЗНЫМИ ЦЕНАМИ ---
       const itemsData = [
-        { id: 'phone', name: 'iPhone 12', baseBuy: 45000, baseSell: 55000, stock: 3, owned: 0, volatility: 0.15 },
-        { id: 'laptop', name: 'MacBook Air M1', baseBuy: 80000, baseSell: 95000, stock: 2, owned: 0, volatility: 0.1 },
-        { id: 'watch', name: 'Rolex Submariner', baseBuy: 500000, baseSell: 620000, stock: 1, owned: 0, volatility: 0.08 },
-        { id: 'headphones', name: 'Sony WH-1000XM4', baseBuy: 25000, baseSell: 32000, stock: 5, owned: 0, volatility: 0.2 },
-        { id: 'camera', name: 'Canon EOS R6', baseBuy: 180000, baseSell: 210000, stock: 2, owned: 0, volatility: 0.12 },
-        { id: 'bike', name: 'Горный велосипед', baseBuy: 30000, baseSell: 40000, stock: 4, owned: 0, volatility: 0.18 },
-        { id: 'console', name: 'PlayStation 5', baseBuy: 45000, baseSell: 58000, stock: 3, owned: 0, volatility: 0.14 },
-        { id: 'drone', name: 'DJI Mini 3', baseBuy: 70000, baseSell: 85000, stock: 2, owned: 0, volatility: 0.16 },
+        { id: 'gum', name: 'Жвачка', baseBuy: 500, baseSell: 700, stock: 100, owned: 0, volatility: 0.4 },
+        { id: 'coffee', name: 'Стакан кофе', baseBuy: 1200, baseSell: 1600, stock: 50, owned: 0, volatility: 0.3 },
+        { id: 'book', name: 'Популярная книга', baseBuy: 2500, baseSell: 3200, stock: 20, owned: 0, volatility: 0.25 },
+        { id: 'headphones', name: 'Проводные наушники', baseBuy: 3000, baseSell: 4500, stock: 30, owned: 0, volatility: 0.3 },
+        { id: 'phone', name: 'iPhone 12 (б/у)', baseBuy: 45000, baseSell: 55000, stock: 3, owned: 0, volatility: 0.15 },
+        { id: 'laptop', name: 'Ноутбук для учебы', baseBuy: 65000, baseSell: 80000, stock: 5, owned: 0, volatility: 0.12 },
+        { id: 'watch', name: 'Умные часы', baseBuy: 25000, baseSell: 35000, stock: 10, owned: 0, volatility: 0.2 },
+        { id: 'bike', name: 'Городской велосипед', baseBuy: 40000, baseSell: 55000, stock: 8, owned: 0, volatility: 0.18 },
+        { id: 'console', name: 'Игровая консоль', baseBuy: 48000, baseSell: 60000, stock: 4, owned: 0, volatility: 0.14 },
+        { id: 'camera', name: 'Зеркальный фотоаппарат', baseBuy: 90000, baseSell: 110000, stock: 2, owned: 0, volatility: 0.1 },
+        { id: 'drone', name: 'Квадрокоптер', baseBuy: 75000, baseSell: 95000, stock: 3, owned: 0, volatility: 0.16 },
+        { id: 'ps5', name: 'PlayStation 5 Slim', baseBuy: 52000, baseSell: 65000, stock: 6, owned: 0, volatility: 0.13 },
+        { id: 'xbox', name: 'Xbox Series X', baseBuy: 55000, baseSell: 68000, stock: 5, owned: 0, volatility: 0.13 },
+        { id: 'tablet', name: 'Планшет 11"', baseBuy: 35000, baseSell: 45000, stock: 7, owned: 0, volatility: 0.17 },
+        { id: 'keyboard', name: 'Механическая клавиатура', baseBuy: 8000, baseSell: 12000, stock: 15, owned: 0, volatility: 0.22 },
+        { id: 'mouse', name: 'Геймерская мышь', baseBuy: 4000, baseSell: 6000, stock: 25, owned: 0, volatility: 0.28 },
+        { id: 'monitor', name: 'Монитор 27" 144Hz', baseBuy: 25000, baseSell: 32000, stock: 12, owned: 0, volatility: 0.19 },
+        { id: 'gpu', name: 'Видеокарта (б/у)', baseBuy: 120000, baseSell: 150000, stock: 2, owned: 0, volatility: 0.09 },
+        { id: 'pc', name: 'Игровой ПК', baseBuy: 250000, baseSell: 300000, stock: 1, owned: 0, volatility: 0.07 },
+        { id: 'car', name: 'Старый автомобиль', baseBuy: 500000, baseSell: 600000, stock: 1, owned: 0, volatility: 0.05 },
       ];
 
-      let balance = 10000;
+      let balance = 1000; // Стартовый баланс 1000 рублей
       let selectedItemId = null;
       let chartData = [];
       let isSfxOn = true;
@@ -150,6 +231,8 @@
       document.getElementById('btn-music').addEventListener('click', playMusic);
 
       function init() {
+        renderMarket
+      function init() {
         renderMarket();
         updatePricesLoop();
       }
@@ -160,7 +243,10 @@
           const card = document.createElement('div');
           card.className = `item-card ${selectedItemId === item.id ? 'selected' : ''}`;
           card.onclick = () => selectItem(item.id);
+          
+          // Цвет текста, если предмет есть у игрока
           const ownedClass = item.owned > 0 ? 'style="color:var(--success)"' : '';
+          
           card.innerHTML = `
             <div class="item-info">
               <h3>${item.name}</h3>
@@ -174,43 +260,102 @@
       function selectItem(id) {
         selectedItemId = id;
         const item = itemsData.find(i => i.id === id);
+        
+        // Перерисовываем карточки, чтобы подсветить выбранную
         renderMarket(); 
+        
         selectedNameEl.textContent = item.name;
         currentPriceEl.textContent = (item.buyPrice || item.baseBuy).toLocaleString() + ' ₽';
         customPriceInput.value = '';
+        
+        // Генерируем историю цен для графика (случайные колебания)
         chartData = [];
-        for(let i=0; i<20; i++) {
-          chartData.push(Math.round(item.baseBuy * (0.8 + Math.random() * 0.4)));
+        for(let i = 0; i < 20; i++) {
+          // Имитируем прошлую цену: базовая +/- волатильность
+          const fluctuation = (Math.random() - 0.5) * 2 * item.volatility * item.baseBuy;
+          chartData.push(Math.max(100, Math.round(item.baseBuy + fluctuation)));
         }
         drawChart(chartData);
       }
 
+      // --- ОТРИСОВКА ГРАФИКА С ТОЧКАМИ И ТУЛТИПАМИ ---
       function drawChart(data) {
         const container = document.getElementById('chart-area');
-        container.innerHTML = '';
+        container.innerHTML = ''; // Очищаем перед перерисовкой
+        
         const canvas = document.createElement('canvas');
         canvas.id = 'price-chart';
         container.appendChild(canvas);
         const ctx = canvas.getContext('2d');
+        
         const w = canvas.width = container.clientWidth;
         const h = canvas.height = 200;
+        
         if (!data.length) return;
+
         const min = Math.min(...data);
         const max = Math.max(...data);
         const range = max - min;
-        const padding = 20;
+        const padding = 30; 
+
+        // Рисуем легкую сетку на фоне
+        ctx.strokeStyle = 'var(--border)';
+        ctx.lineWidth = 1;
+        const steps = 4;
+        for(let i = 0; i <= steps; i++) {
+          const y = padding + ((h - padding * 2) / steps) * i;
+          ctx.beginPath();
+          ctx.moveTo(padding, y);
+          ctx.lineTo(w - padding, y);
+          ctx.stroke();
+        }
+
+        // Рисуем линию графика
         ctx.fillStyle = 'transparent';
         ctx.strokeStyle = 'var(--accent)';
         ctx.lineWidth = 3;
         ctx.beginPath();
+        
         data.forEach((price, i) => {
-          const x = (i / (data.length - 1)) * (w - padding * 2) + padding;
+          const x = padding + (i / (data.length - 1)) * (w - padding * 2);
           const yRatio = range === 0 ? 0 : (max - price) / range;
           const y = yRatio * (h - padding * 2) + padding;
+          
           if (i === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         });
         ctx.stroke();
+
+        // --- СОЗДАЕМ КЛИКАБЕЛЬНЫЕ ТОЧКИ (СТРЕЛКИ) ---
+        data.forEach((price, i) => {
+          const x = padding + (i / (data.length - 1)) * (w - padding * 2);
+          const yRatio = range === 0 ? 0 : (max - price) / range;
+          const y = yRatio * (h - padding * 2) + padding;
+
+          // Создаем div-точку поверх канваса
+          const point = document.createElement('div');
+          point.className = 'data-point';
+          point.style.left = x + 'px';
+          point.style.top = y + 'px';
+
+          // Всплывающая подсказка
+          const tooltip = document.createElement('div');
+          tooltip.className = 'tooltip';
+          tooltip.textContent = `${price.toLocaleString()} ₽ (День ${i + 1})`;
+          point.appendChild(tooltip);
+
+          // Логика клика: показываем цену в статусе
+          point.addEventListener('click', (e) => {
+            e.stopPropagation(); 
+            showStatus(`Вы кликнули на цену: ${price.toLocaleString()} ₽`, true);
+            playSound('success');
+          });
+
+          container.appendChild(point);
+        });
+        // ----------------------------------------------
+
+        // Подписи осей (минимум и максимум)
         ctx.fillStyle = 'var(--text-muted)';
         ctx.font = '12px Arial';
         ctx.textAlign = 'right';
@@ -231,6 +376,7 @@
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         if (!AudioContext) return;
         if(!audioCtx) audioCtx = new AudioContext();
+        
         function playNote(freq, time, dur) {
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
@@ -243,11 +389,11 @@
           osc.start(time);
           osc.stop(time + dur);
         }
-        // Джазовая мелодия
+        // Короткая джазовая мелодия
         playNote(392, 0, 0.3); playNote(440, 0.3, 0.3);
         playNote(523, 0.6, 0.3); playNote(659, 0.9, 0.3);
         playNote(784, 1.2, 0.3); playNote(659, 1.5, 0.3);
-                playNote(523, 1.8, 0.3); playNote(440, 2.1, 0.3);
+        playNote(523, 1.8, 0.3); playNote(440, 2.1, 0.3);
       }
 
       function toggleTheme() {
@@ -270,7 +416,6 @@
 
       function playSound(type) {
         if (!isSfxOn) return;
-        // Простой синтезированный звук без внешних файлов
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         if (!AudioContext) return;
         if(!audioCtx) audioCtx = new AudioContext();
@@ -283,7 +428,6 @@
         osc.type = type === 'success' ? 'sine' : 'square';
         
         let freq = 440;
-        let time = 0;
         let dur = 0.1;
         
         if (type === 'success') {
@@ -292,31 +436,34 @@
           freq = 220; dur = 0.15;
         }
         
-        osc.frequency.setValueAtTime(freq, time);
-        gain.gain.setValueAtTime(0.05, time);
-        gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
-        osc.start(time);
-        osc.stop(time + dur);
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+        osc.start();
+        osc.stop(audioCtx.currentTime + dur);
       }
 
       function updatePricesLoop() {
         setInterval(() => {
           itemsData.forEach(item => {
-            // Цены немного плавают
+            // Цены немного плавают каждую секунду
             const change = (Math.random() - 0.5) * 2 * item.volatility * item.baseBuy;
-            item.baseBuy = Math.max(1000, Math.round(item.baseBuy + change));
+            item.baseBuy = Math.max(100, Math.round(item.baseBuy + change));
             item.baseSell = Math.round(item.baseBuy * 1.2); // Маржа 20%
           });
+          
+          // Если предмет выбран, обновляем его цену и график
           if (selectedItemId) {
             const item = itemsData.find(i => i.id === selectedItemId);
             currentPriceEl.textContent = item.baseBuy.toLocaleString() + ' ₽';
-            // Обновляем график при смене цены
+            
+            // Добавляем новую цену в историю, старую убираем
             chartData.shift();
             chartData.push(item.baseBuy);
             drawChart(chartData);
           }
-          renderMarket(); // Обновляем карточки с новыми ценами
-        }, 5000); // Каждые 5 секунд
+          renderMarket(); // Обновляем список товаров с новыми ценами
+        }, 3000); // Обновление каждые 3 секунды
       }
 
       function performAction(action) {
@@ -327,6 +474,7 @@
         }
 
         const item = itemsData.find(i => i.id === selectedItemId);
+        // Цена для сделки: своя или рыночная
         const price = action === 'offer' 
           ? parseInt(customPriceInput.value) 
           : (action === 'buy' ? item.baseBuy : item.baseSell);
@@ -337,7 +485,7 @@
           return;
         }
 
-        // Логика покупки
+        // ЛОГИКА ПОКУПКИ
         if (action === 'buy') {
           if (balance >= price && item.stock > 0) {
             balance -= price;
@@ -347,13 +495,13 @@
             playSound('success');
           } else {
             let reason = '';
-            if (balance < price) reason = 'Не хватает денег';
+            if (balance < price) reason = `Не хватает денег (нужно ${price.toLocaleString()} ₽, у вас ${balance.toLocaleString()} ₽)`;
             else if (item.stock <= 0) reason = 'Нет на складе';
             showStatus(reason, false);
             playSound('error');
           }
         } 
-        // Логика продажи
+        // ЛОГИКА ПРОДАЖИ
         else if (action === 'sell') {
           if (item.owned > 0) {
             balance += price;
@@ -366,9 +514,9 @@
             playSound('error');
           }
         } 
-        // Логика своей цены (упрощённая: просто показываем сообщение)
+        // ЛОГИКА СВОЕЙ ЦЕНЫ (просто уведомление)
         else if (action === 'offer') {
-          showStatus(`Вы предложили цену: ${price.toLocaleString()} ₽ (в демо-режиме это просто заявка)`, true);
+          showStatus(`Заявка: вы предложили ${price.toLocaleString()} ₽ за ${item.name}`, true);
           playSound('success');
         }
 
@@ -381,7 +529,7 @@
         statusMsgEl.style.color = isSuccess ? 'var(--success)' : 'var(--danger)';
       }
 
-      // Запуск
+      // Запуск игры
       init();
     </script>
   </body>
