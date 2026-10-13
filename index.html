@@ -15,161 +15,97 @@
         --danger: #ef4444;
         --border: #e2e8f0;
       }
-
       body.dark-mode {
-        --bg-color: #1e1e2e;
-        --panel-bg: #272735;
-        --text-main: #f1f5f9;
-        --text-muted: #94a3b8;
-        --border: #333344;
+        --bg-color: #1a1b26;
+        --panel-bg: #16213e;
+        --text-main: #c0caf5;
+        --text-muted: #8f94cb;
+        --border: #333;
       }
-
-      * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-      
+      * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
       body { background-color: var(--bg-color); color: var(--text-main); transition: background 0.3s, color 0.3s; }
-
       header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem 2rem;
-        background: var(--panel-bg);
-        border-bottom: 1px solid var(--border);
-        position: sticky;
-        top: 0;
-        z-index: 100;
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 1rem 2rem; background: var(--panel-bg);
+        border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
       }
-
       .controls-group button {
-        background: transparent;
-        border: 1px solid var(--border);
-        color: var(--text-main);
-        padding: 0.5rem 1rem;
-        border-radius: 6px;
-        cursor: pointer;
-        margin-right: 0.5rem;
-        transition: all 0.2s;
+        background: transparent; border: 1px solid var(--border);
+        color: var(--text-main); padding: 0.5rem 1rem; border-radius: 6px;
+        cursor: pointer; margin-right: 0.5rem; transition: all 0.2s;
         display: flex; align-items: center; gap: 0.5rem;
       }
       .controls-group button:hover { background: var(--accent); color: white; border-color: var(--accent); }
-      .btn-active { background: var(--success); color: white; }
-
-      .game-layout {
-        display: grid;
-        grid-template-columns: 350px 1fr;
-        gap: 20px;
-        padding: 2rem;
-        max-width: 1400px;
-        margin: 0 auto;
-      }
-
+      .btn-active { background: var(--success) !important; color: white !important; }
+      .game-layout { display: grid; grid-template-columns: 350px 1fr; gap: 20px; padding: 2rem; max-width: 1400px; margin: 0 auto; }
       .sidebar-panel {
-        background: var(--panel-bg);
-        border-radius: 12px;
-        padding: 1.5rem;
-        height: calc(100vh - 120px);
-        overflow-y: auto;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        background: var(--panel-bg); border-radius: 12px; padding: 1.5rem;
+        height: calc(100vh - 120px); overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
       }
-      
       .item-card {
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        background: #fff;
-        cursor: pointer;
-        transition: transform 0.1s, box-shadow 0.2s;
+        border: 1px solid var(--border); border-radius: 8px;
+        padding: 1rem; margin-bottom: 1rem; background: #fff;
+        cursor: pointer; transition: transform 0.1s, box-shadow 0.2s;
       }
-      .item-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-      .item-card.selected { border-color: var(--accent); background: #eff6ff; }
-      
+      .item-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+      .item-card.selected { border-color: var(--accent); background: rgba(59, 130, 246, 0.05); }
       .item-info h3 { color: var(--text-main); margin-bottom: 0.5rem; }
       .item-price { font-weight: bold; color: var(--text-muted); margin-bottom: 0.5rem; display: block; }
       .item-stats { font-size: 0.85rem; color: var(--text-muted); }
-
-      .main-panel {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-      }
-
+      .main-panel { display: flex; flex-direction: column; gap: 20px; }
       .graph-container {
-        background: var(--panel-bg);
-        border-radius: 12px;
-        padding: 1.5rem;
-        min-height: 250px;
-        position: relative;
+        background: var(--panel-bg); border-radius: 12px;
+        padding: 1.5rem; min-height: 250px; position: relative;
         border: 1px solid var(--border);
       }
-      #price-chart { width: 100%; height: 200px; }
       .chart-placeholder { text-align: center; padding: 50px; color: var(--text-muted); font-style: italic; }
-
       .actions-panel {
-        background: var(--panel-bg);
-        border-radius: 12px;
-        padding: 1.5rem;
-        border: 1px solid var(--border);
+        background: var(--panel-bg); border-radius: 12px;
+        padding: 1.5rem; border: 1px solid var(--border);
       }
       .balance-display { font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: var(--text-main); }
-      
       .action-buttons { display: flex; gap: 1rem; flex-wrap: wrap; }
       .btn-big {
-        padding: 0.75rem 1.5rem;
-        font-size: 1rem;
-        border-radius: 8px;
-        cursor: pointer;
-        border: none;
-        font-weight: 600;
+        padding: 0.75rem 1.5rem; font-size: 1rem; border-radius: 8px;
+        cursor: pointer; border: none; font-weight: 600;
       }
       .btn-buy { background: var(--success); color: white; }
       .btn-sell { background: var(--danger); color: white; }
       .btn-offer { background: var(--accent); color: white; }
       .btn-big:hover { opacity: 0.9; transform: scale(1.02); }
-
       input[type="number"] {
-        padding: 0.5rem;
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        width: 150px;
-        text-align: right;
+        padding: 0.5rem; border: 1px solid var(--border);
+        border-radius: 6px; width: 150px; text-align: right; color: var(--text-main);
       }
     </style>
   </head>
   <body>
-
     <header>
-      <div class="logo">СКУПЩИК PRO</div>
+      <div class="logo" style="font-weight:bold; font-size:1.2rem;">СКУПЩИК PRO</div>
       <div class="controls-group">
         <button id="btn-theme" title="Тема">🌙 Тема (Светлая)</button>
         <button id="btn-sfx" class="btn-active" title="Звуки">🔊 SFX (Вкл)</button>
         <button id="btn-music" title="Музыка">🎵 Джаз (Выкл)</button>
       </div>
     </header>
-
     <div class="game-layout">
       <aside class="sidebar-panel">
         <h2 style="margin-bottom: 1.5rem;">Склад / Рынок</h2>
         <div id="market-list"></div>
       </aside>
-
       <main class="main-panel">
         <div class="balance-display">Баланс: <span id="balance-val">10 000</span> ₽</div>
-
         <div class="graph-container">
           <h3 style="margin-bottom:1rem;">Динамика цены</h3>
-          <div id="chart-area" class="chart-placeholder">Выберите предмет, чтобы увидеть график</div>
+          <div id="chart-area" class="chart-placeholder">Выберите предмет слева, чтобы увидеть график</div>
         </div>
-
         <div class="actions-panel">
           <h3>Действия</h3>
           <p id="selected-item-name" style="font-weight:bold; margin: 1rem 0; color:var(--text-main);">Ничего не выбрано</p>
-          
           <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1rem;">
             <span>Рыночная цена:</span>
             <strong id="current-market-price">0 ₽</strong>
           </div>
-
           <div class="action-buttons">
             <button class="btn-big btn-buy" onclick="performAction('buy')">Купить по рынку</button>
             <button class="btn-big btn-sell" onclick="performAction('sell')">Продать по рынку</button>
@@ -178,7 +114,6 @@
               <button class="btn-big btn-offer" onclick="performAction('offer')">Выставить свою цену</button>
             </div>
           </div>
-          
           <p id="status-msg" style="margin-top:1rem; font-size:0.9rem;"></p>
         </div>
       </main>
@@ -201,6 +136,7 @@
       let chartData = [];
       let isSfxOn = true;
       let isMusicOn = false;
+      let audioCtx = null; 
       
       const marketListEl = document.getElementById('market-list');
       const balanceEl = document.getElementById('balance-val');
@@ -224,17 +160,13 @@
           const card = document.createElement('div');
           card.className = `item-card ${selectedItemId === item.id ? 'selected' : ''}`;
           card.onclick = () => selectItem(item.id);
-          
           const ownedClass = item.owned > 0 ? 'style="color:var(--success)"' : '';
           card.innerHTML = `
             <div class="item-info">
               <h3>${item.name}</h3>
               <span class="item-price">Рынок: ~${item.baseSell.toLocaleString()} ₽</span>
-              <div class="item-stats">
-                На рынке: ${item.stock} | У вас: <b ${ownedClass}>${item.owned}</b>
-              </div>
-            </div>
-          `;
+              <div class="item-stats">На рынке: ${item.stock} | У вас: <b ${ownedClass}>${item.owned}</b></div>
+            </div>`;
           marketListEl.appendChild(card);
         });
       }
@@ -242,13 +174,10 @@
       function selectItem(id) {
         selectedItemId = id;
         const item = itemsData.find(i => i.id === id);
-        
         renderMarket(); 
-        
         selectedNameEl.textContent = item.name;
         currentPriceEl.textContent = (item.buyPrice || item.baseBuy).toLocaleString() + ' ₽';
         customPriceInput.value = '';
-        
         chartData = [];
         for(let i=0; i<20; i++) {
           chartData.push(Math.round(item.baseBuy * (0.8 + Math.random() * 0.4)));
@@ -259,36 +188,29 @@
       function drawChart(data) {
         const container = document.getElementById('chart-area');
         container.innerHTML = '';
-
         const canvas = document.createElement('canvas');
         canvas.id = 'price-chart';
         container.appendChild(canvas);
         const ctx = canvas.getContext('2d');
         const w = canvas.width = container.clientWidth;
         const h = canvas.height = 200;
-
         if (!data.length) return;
-
         const min = Math.min(...data);
         const max = Math.max(...data);
         const range = max - min;
         const padding = 20;
-
         ctx.fillStyle = 'transparent';
         ctx.strokeStyle = 'var(--accent)';
         ctx.lineWidth = 3;
         ctx.beginPath();
-
         data.forEach((price, i) => {
           const x = (i / (data.length - 1)) * (w - padding * 2) + padding;
-          const y = ((max - price) / range) * (h - padding * 2) + padding;
+          const yRatio = range === 0 ? 0 : (max - price) / range;
+          const y = yRatio * (h - padding * 2) + padding;
           if (i === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         });
-
         ctx.stroke();
-
-        // Подписи осей
         ctx.fillStyle = 'var(--text-muted)';
         ctx.font = '12px Arial';
         ctx.textAlign = 'right';
@@ -300,17 +222,15 @@
         if (isMusicOn) {
           isMusicOn = false;
           document.getElementById('btn-music').textContent = '🎵 Джаз (Выкл)';
+          if(audioCtx) audioCtx.close();
+          audioCtx = null;
           return;
         }
-
         isMusicOn = true;
         document.getElementById('btn-music').textContent = '🎵 Джаз (Играет)';
-
-        // Генерируем простой «джазовый» звук через Web Audio API (без внешних файлов)
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         if (!AudioContext) return;
-        const audioCtx = new AudioContext();
-
+        if(!audioCtx) audioCtx = new AudioContext();
         function playNote(freq, time, dur) {
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
@@ -323,17 +243,146 @@
           osc.start(time);
           osc.stop(time + dur);
         }
-
-        // Простая джазовая последовательность
-        playNote(392, 0, 0.3);   // G
-        playNote(440, 0.3, 0.3); // A
-        playNote(523, 0.6, 0.3); // C
-        playNote(659, 0.9, 0.3); // E
-        playNote(784, 1.2, 0.3); // G
-        playNote(659, 1.5, 0.3); // E
-        playNote(523, 1.8, 0.3); // C
-        playNote(440, 2.1, 0.3); // A
+        // Джазовая мелодия
+        playNote(392, 0, 0.3); playNote(440, 0.3, 0.3);
+        playNote(523, 0.6, 0.3); playNote(659, 0.9, 0.3);
+        playNote(784, 1.2, 0.3); playNote(659, 1.5, 0.3);
+                playNote(523, 1.8, 0.3); playNote(440, 2.1, 0.3);
       }
 
       function toggleTheme() {
-        document.
+        document.body.classList.toggle('dark-mode');
+        const btn = document.getElementById('btn-theme');
+        btn.textContent = document.body.classList.contains('dark-mode') ? '☀️ Тема (Тёмная)' : '🌙 Тема (Светлая)';
+      }
+
+      function toggleSFX() {
+        isSfxOn = !isSfxOn;
+        const btn = document.getElementById('btn-sfx');
+        if (isSfxOn) {
+          btn.classList.add('btn-active');
+          btn.textContent = '🔊 SFX (Вкл)';
+        } else {
+          btn.classList.remove('btn-active');
+          btn.textContent = '🔉 SFX (Выкл)';
+        }
+      }
+
+      function playSound(type) {
+        if (!isSfxOn) return;
+        // Простой синтезированный звук без внешних файлов
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        if(!audioCtx) audioCtx = new AudioContext();
+        
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        osc.type = type === 'success' ? 'sine' : 'square';
+        
+        let freq = 440;
+        let time = 0;
+        let dur = 0.1;
+        
+        if (type === 'success') {
+          freq = 660; dur = 0.2;
+        } else if (type === 'error') {
+          freq = 220; dur = 0.15;
+        }
+        
+        osc.frequency.setValueAtTime(freq, time);
+        gain.gain.setValueAtTime(0.05, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
+        osc.start(time);
+        osc.stop(time + dur);
+      }
+
+      function updatePricesLoop() {
+        setInterval(() => {
+          itemsData.forEach(item => {
+            // Цены немного плавают
+            const change = (Math.random() - 0.5) * 2 * item.volatility * item.baseBuy;
+            item.baseBuy = Math.max(1000, Math.round(item.baseBuy + change));
+            item.baseSell = Math.round(item.baseBuy * 1.2); // Маржа 20%
+          });
+          if (selectedItemId) {
+            const item = itemsData.find(i => i.id === selectedItemId);
+            currentPriceEl.textContent = item.baseBuy.toLocaleString() + ' ₽';
+            // Обновляем график при смене цены
+            chartData.shift();
+            chartData.push(item.baseBuy);
+            drawChart(chartData);
+          }
+          renderMarket(); // Обновляем карточки с новыми ценами
+        }, 5000); // Каждые 5 секунд
+      }
+
+      function performAction(action) {
+        if (!selectedItemId) {
+          showStatus('Сначала выберите предмет слева!', false);
+          playSound('error');
+          return;
+        }
+
+        const item = itemsData.find(i => i.id === selectedItemId);
+        const price = action === 'offer' 
+          ? parseInt(customPriceInput.value) 
+          : (action === 'buy' ? item.baseBuy : item.baseSell);
+
+        if (!price || price <= 0) {
+          showStatus('Введите корректную цену!', false);
+          playSound('error');
+          return;
+        }
+
+        // Логика покупки
+        if (action === 'buy') {
+          if (balance >= price && item.stock > 0) {
+            balance -= price;
+            item.stock--;
+            item.owned++;
+            showStatus(`Куплено: ${item.name} за ${price.toLocaleString()} ₽`, true);
+            playSound('success');
+          } else {
+            let reason = '';
+            if (balance < price) reason = 'Не хватает денег';
+            else if (item.stock <= 0) reason = 'Нет на складе';
+            showStatus(reason, false);
+            playSound('error');
+          }
+        } 
+        // Логика продажи
+        else if (action === 'sell') {
+          if (item.owned > 0) {
+            balance += price;
+            item.owned--;
+            item.stock++; // Возвращаем на рынок
+            showStatus(`Продано: ${item.name} за ${price.toLocaleString()} ₽`, true);
+            playSound('success');
+          } else {
+            showStatus('У вас нет этого предмета', false);
+            playSound('error');
+          }
+        } 
+        // Логика своей цены (упрощённая: просто показываем сообщение)
+        else if (action === 'offer') {
+          showStatus(`Вы предложили цену: ${price.toLocaleString()} ₽ (в демо-режиме это просто заявка)`, true);
+          playSound('success');
+        }
+
+        balanceEl.textContent = balance.toLocaleString();
+        renderMarket();
+      }
+
+      function showStatus(msg, isSuccess) {
+        statusMsgEl.textContent = msg;
+        statusMsgEl.style.color = isSuccess ? 'var(--success)' : 'var(--danger)';
+      }
+
+      // Запуск
+      init();
+    </script>
+  </body>
+</html>
