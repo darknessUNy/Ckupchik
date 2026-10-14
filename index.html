@@ -10,27 +10,47 @@
       --border: #334155;
       --danger: #ef4444;
       --success: #10b981;
+      --dark: #0f172a;
     }
-    body { font-family: sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 20px; }
-    .container { max-width: 900px; margin: 0 auto; }
-    h1 { text-align: center; }
+    body { font-family: sans-serif; background: var(--dark); color: #f8fafc; margin: 0; padding: 20px; }
+    .container { max-width: 960px; margin: 0 auto; }
+    h1 { text-align: center; margin-bottom: 30px; }
     .hidden { display: none !important; }
     .msg-error { color: var(--danger); }
     .msg-success { color: var(--success); }
-    
-    /* Экран авторизации */
-    #auth-screen { background: #1e293b; padding: 30px; border-radius: 12px; margin-bottom: 20px; }
-    .auth-form { display: flex; flex-direction: column; gap: 15px; max-width: 400px; margin: 0 auto; }
-    input { padding: 10px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; }
-    button { padding: 10px 20px; border-radius: 6px; cursor: pointer; background: var(--accent); color: white; border: none; }
+
+    #auth-screen { background: #1e293b; padding: 32px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+    .auth-form { display: flex; flex-direction: column; gap: 14px; max-width: 360px; margin: 0 auto; }
+    input[type="text"], input[type="password"] {
+      padding: 10px; border: 1px solid var(--border); background: #0f172a; color: white;
+      border-radius: 6px; width: 100%; box-sizing: border-box;
+    }
+    button {
+      padding: 10px 16px; border: none; border-radius: 6px; cursor: pointer;
+      font-weight: 500; transition: opacity 0.2s;
+    }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-secondary { background: transparent; color: white; border: 1px solid var(--border); }
     button:hover { opacity: 0.9; }
 
-    /* Игровой интерфейс */
-    #game-header { background: #334155; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-    .game-layout { background: #1e293b; padding: 20px; border-radius: 12px; }
-    #market-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; margin-top: 20px; }
-    .item-card { border: 1px solid #334155; padding: 15px; border-radius: 8px; cursor: pointer; transition: transform 0.2s; }
-    .item-card:hover { transform: translateY(-3px); }
+    #game-header {
+      background: #334155; padding: 16px 20px; border-radius: 8px;
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;
+    }
+    #game-header .user-info { font-size: 1.1rem; }
+    #game-header .actions button { margin-left: 8px; }
+
+    .game-layout { background: #1e293b; padding: 24px; border-radius: 12px; }
+
+    #market-list {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;
+      margin-top: 24px;
+    }
+    .item-card {
+      border: 1px solid var(--border); padding: 14px; border-radius: 8px; cursor: pointer;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+    .item-card:hover { transform: translateY(-2px); }
     .item-card.selected { border-color: var(--accent); box-shadow: 0 0 10px rgba(59, 130, 246, 0.3); }
     .item-info h3 { margin: 0 0 8px 0; }
     .item-price { color: #94a3b8; font-size: 0.9em; }
@@ -43,35 +63,30 @@
     .actions-panel { margin-top: 25px; display: flex; gap: 15px; flex-wrap: wrap; }
     .actions-panel input { width: 140px; }
 
-    /* Админ-панель */
     #admin-panel { background: #334155; padding: 20px; border-radius: 8px; margin-top: 20px; display: none; }
-    #admin-panel.active { display: block; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Торговая площадка</h1>
 
-    <!-- Экран авторизации -->
     <div id="auth-screen">
       <div class="auth-form">
         <input type="text" id="login-input" placeholder="Ник" />
         <input type="password" id="password-input" placeholder="Пароль" />
         <div style="display: flex; gap: 10px;">
-          <button id="btn-login">Войти</button>
-          <button id="btn-register">Регистрация</button>
+          <button id="btn-login" class="btn-primary">Войти</button>
+          <button id="btn-register" class="btn-secondary">Регистрация</button>
         </div>
         <p id="auth-msg"></p>
       </div>
     </div>
 
-    <!-- Игровой интерфейс -->
     <div id="game-header" class="hidden">
-      <div>
-        <span>Игрок: <strong id="current-user-display"></strong></span>
-        <span style="margin-left: 20px;">Баланс: <span id="balance-val">0 ₽</span></span>
+      <div class="user-info">
+        Игрок: <strong id="current-user-display"></strong> | Баланс: <span id="balance-val">0 ₽</span>
       </div>
-      <div style="display: flex; gap: 10px;">
+      <div class="actions">
         <button id="btn-save">Сохранить</button>
         <button id="btn-load">Загрузить</button>
         <button id="btn-logout">Выход</button>
@@ -81,32 +96,30 @@
     <div class="game-layout hidden">
       <div>
         <h3>Выбран предмет: <span id="selected-item-name"></span></h3>
-        <p>Текущая рыночная цена продажи: <span id="current-market-price">0 ₽</span></p>
+        <p>Рыночная цена продажи: <span id="current-market-price">0 ₽</span></p>
       </div>
 
       <div id="chart-area"></div>
-
       <div id="market-list"></div>
 
       <div class="actions-panel">
-        <button id="btn-buy">Купить</button>
-        <button id="btn-sell">Продать</button>
+        <button id="btn-buy" class="btn-primary">Купить</button>
+        <button id="btn-sell" class="btn-primary">Продать</button>
         <div style="display: flex; align-items: center; gap: 10px;">
           <input type="number" id="custom-price" placeholder="Цена ставки" step="1" />
-          <button id="btn-offer">Ставка</button>
+          <button id="btn-offer" class="btn-secondary">Ставка</button>
         </div>
       </div>
 
       <p id="status-msg" style="margin-top: 15px;"></p>
 
-      <!-- Админ-панель -->
-      <button id="btn-admin-toggle" style="margin-top: 20px;">🔒 Панель админа</button>
+      <button id="btn-admin-toggle" style="margin-top: 20px;" class="btn-secondary">🔒 Админ-панель</button>
       <div id="admin-panel">
-        <h4>Админ-панель</h4>
+        <h4>Админ-панель (требует пароль)</h4>
         <div style="display: flex; gap: 10px; align-items: center;">
           <input type="text" id="admin-target-nick" placeholder="Ник игрока" />
           <input type="number" id="admin-amount" placeholder="Сумма" />
-          <button id="admin-send">Выдать деньги</button>
+          <button id="admin-send" class="btn-primary">Выдать деньги</button>
         </div>
         <p id="admin-status"></p>
       </div>
@@ -157,7 +170,11 @@
       { id: 'tshirt_brand', name: 'Футболка брендовая', baseBuy: 1600, baseSell: 2400, stock: 250, owned: 0, volatility: 0.06 },
       { id: 'jeans_premium', name: 'Джинсы премиум', baseBuy: 4200, baseSell: 5900, stock: 50, owned: 0, volatility: 0.09 },
       { id: 'camera_compact', name: 'Компактная камера', baseBuy: 8500, baseSell: 11500, stock: 35, owned: 0, volatility: 0.11 },
-      { id: 'drone_mini', name: 'Мини‑дрон', baseBuy: 7200, baseSell: 9800, stock: 45, owned: 0, volatility: 0.13 }
+      { id: 'drone_mini', name: 'Мини‑дрон', baseBuy: 7200, baseSell: 9800, stock: 45, owned: 0, volatility: 0.13 },
+      { id: 'bike_city', name: 'Городской велосипед', baseBuy: 18000, baseSell: 24000, stock: 25, owned: 0, volatility: 0.10 },
+      { id: 'skateboard', name: 'Скейтборд', baseBuy: 6500, baseSell: 8900, stock: 60, owned: 0, volatility: 0.12 },
+      { id: 'smartwatch', name: 'Умные часы', baseBuy: 9500, baseSell: 13500, stock: 55, owned: 0, volatility: 0.11 },
+      { id: 'console_old', name: 'Старая игровая консоль', baseBuy: 12000, baseSell: 17000, stock: 30, owned: 0, volatility: 0.13 }
     ];
 
     function getUsers() {
@@ -293,31 +310,39 @@
 
     document.getElementById('btn-logout').addEventListener('click', logout);
 
-    btnAdminToggle.addEventListener('click', () => adminPanel.classList.toggle('active'));
+    const ADMIN_PASSWORD = 'admin123';
+    let isAdminUnlocked = false;
 
-    const ADMIN_PASSWORD = '*2923145687al';
+    btnAdminToggle.addEventListener('click', () => {
+      if (!isAdminUnlocked) {
+        const inputPass = prompt('Введите админ‑пароль:');
+        if (inputPass === ADMIN_PASSWORD) {
+          isAdminUnlocked = true;
+          adminPanel.style.display = 'block';
+          adminStatus.textContent = 'Админ‑панель разблокирована';
+          adminStatus.style.color = '#10b981';
+        } else {
+          alert('Неверный пароль');
+        }
+      } else {
+        adminPanel.style.display = adminPanel.style.display === 'block' ? 'none' : 'block';
+      }
+    });
 
     adminSend.addEventListener('click', () => {
-            const inputPass = prompt('Введите админ‑пароль:');
-      if (inputPass !== ADMIN_PASSWORD) {
-        adminStatus.textContent = 'Неверный пароль!';
-        adminStatus.style.color = 'var(--danger)';
-        return;
-      }
-
       const targetNick = adminTargetNick.value.trim();
       const amount = parseInt(adminAmount.value, 10);
 
       if (!targetNick || isNaN(amount) || amount <= 0) {
         adminStatus.textContent = 'Проверьте ник и сумму!';
-        adminStatus.style.color = 'var(--danger)';
+        adminStatus.style.color = '#ef4444';
         return;
       }
 
       const users = getUsers();
       if (!users[targetNick]) {
         adminStatus.textContent = 'Игрок не найден!';
-        adminStatus.style.color = 'var(--danger)';
+        adminStatus.style.color = '#ef4444';
         return;
       }
 
@@ -325,7 +350,7 @@
       saveUsers(users);
 
       adminStatus.textContent = `Выдано ${amount.toLocaleString()} ₽ игроку ${targetNick}`;
-      adminStatus.style.color = 'var(--success)';
+      adminStatus.style.color = '#10b981';
       setTimeout(() => adminStatus.textContent = '', 3000);
     });
 
@@ -395,7 +420,7 @@
         dot.style.top = y + 'px';
         dot.style.width = '6px';
         dot.style.height = '6px';
-        dot.style.background = 'var(--accent, #3b82f6)';
+        dot.style.background = '#3b82f6';
         dot.style.borderRadius = '50%';
 
         const tooltip = document.createElement('div');
@@ -404,8 +429,8 @@
         tooltip.style.bottom = '12px';
         tooltip.style.left = '-10px';
         tooltip.style.padding = '4px 8px';
-        tooltip.style.backgroundColor = 'var(--panel-bg, #1f2937)';
-        tooltip.style.border = '1px solid var(--border, #334155)';
+        tooltip.style.backgroundColor = '#1f2937';
+        tooltip.style.border = '1px solid #334155';
         tooltip.style.borderRadius = '4px';
         tooltip.style.fontSize = '0.75rem';
         tooltip.textContent = price.toLocaleString() + ' ₽';
